@@ -28,6 +28,7 @@ export default function TopNav() {
             color: "#000000",
             fontStyle: "bold",
             fontSize: "32px",
+            fontFamily: "Poppins",
           }}
         >
           Accident Direct Claims
