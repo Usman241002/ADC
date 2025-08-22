@@ -40,12 +40,14 @@ export default function TopNav() {
             variant="outlined"
             placeholder="Search"
             sx={{ width: "18.75rem" }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchOutlined />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchOutlined />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
           <HelpOutlineOutlined sx={{ color: "#666666" }} />

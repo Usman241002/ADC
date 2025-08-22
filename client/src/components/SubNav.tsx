@@ -42,8 +42,8 @@ export default function SubNav() {
                 color: "inherit",
                 "&.active": {
                   backgroundColor: "#F5F5F5",
-                  "& .MuiTypography-root": { color: "#02A0E1" },
-                  "& .MuiSvgIcon-root": { color: "#02A0E1" },
+                  "& .MuiTypography-root": { color: "primary.main" },
+                  "& .MuiSvgIcon-root": { color: "primary.main" },
                 },
               }}
             >
