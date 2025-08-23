@@ -1,4 +1,8 @@
-import { SearchOutlined } from "@mui/icons-material";
+import {
+  FileUploadOutlined,
+  SearchOutlined,
+  TuneOutlined,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -14,7 +18,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { TuneOutlined, FileUploadOutlined } from "@mui/icons-material";
+import { Link } from "react-router-dom";
 
 export default function Vehicles() {
   {
@@ -193,6 +197,8 @@ export default function Vehicles() {
             <Button
               variant="contained"
               size="medium"
+              component={Link}
+              to="/vehicles/add"
               sx={{
                 display: "flex",
                 fontSize: "1rem",

@@ -2,6 +2,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Admin from "./pages/Admin";
+import AddVehicle from "./pages/AddVehicle";
 import Dashboard from "./pages/Dashboard";
 import Payments from "./pages/Payment";
 import Rentals from "./pages/Rentals";
@@ -46,9 +47,10 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/payment" element={<Payments />} />
-            <Route path="/rentals" element={<Rentals />} />
             <Route path="/vehicles" element={<Vehicles />} />
+            <Route path="/vehicles/add" element={<AddVehicle />} />
+            <Route path="/rentals" element={<Rentals />} />
+            <Route path="/payment" element={<Payments />} />
             <Route path="/admin" element={<Admin />} />
           </Route>
         </Routes>
