@@ -1,4 +1,4 @@
 import express from "express";
 const router = express.Router();
 
-export const usersRouter = router;
+export const rentalsRouter = router;
