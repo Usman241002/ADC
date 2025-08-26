@@ -205,6 +205,7 @@ export default function Vehicles() {
                 textTransform: "none",
                 backgroundColor: "success.main",
                 color: "#FFFFFF",
+                textAlign: "center",
               }}
             >
               Add Vehicle
@@ -218,6 +219,7 @@ export default function Vehicles() {
                 textTransform: "none",
                 backgroundColor: "error.main",
                 color: "#FFFFFF",
+                textAlign: "center",
               }}
             >
               Remove Vehicle
