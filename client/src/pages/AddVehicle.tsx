@@ -1,8 +1,11 @@
+import { SearchOutlined } from "@mui/icons-material";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Box,
+  Button,
+  FormControl,
   Grid,
   IconButton,
   InputAdornment,
@@ -10,10 +13,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import AccordionTitle from "../components/AccordionTitle";
 import { useState } from "react";
+import AccordionTitle from "../components/AccordionTitle";
 import AddVehicleInput from "../components/AddVehicleInput";
-import { SearchOutlined } from "@mui/icons-material";
+import CouncilPlateInput from "../components/CouncilPlateInput";
+
+type councilPlate = {
+  city: string;
+  plateNumber: string;
+  renewalDate: string;
+};
 
 type vehicleDetails = {
   vrm: string;
@@ -22,8 +31,7 @@ type vehicleDetails = {
   mileage: number;
   motExpiryDate: string;
   roadTaxExpiryDate: string;
-  councilPlateNumber: string;
-  renewalDate: string;
+  councilPlates: councilPlate[];
   company: string;
   weeklyRent: number;
 };
@@ -35,10 +43,9 @@ export default function AddVehicle() {
     make: "",
     model: "",
     mileage: 0,
-    motExpiryDate: new Date().toISOString().split("T")[0],
-    roadTaxExpiryDate: new Date().toISOString().split("T")[0],
-    councilPlateNumber: "",
-    renewalDate: new Date().toISOString().split("T")[0],
+    motExpiryDate: "",
+    roadTaxExpiryDate: "",
+    councilPlates: [{ city: "", plateNumber: "", renewalDate: "" }],
     company: "",
     weeklyRent: 0,
   });
@@ -52,10 +59,66 @@ export default function AddVehicle() {
     event:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLSelectElement>,
+    index?: number,
   ) {
+    const { name, value } = event.target;
+
+    // Handle council plate fields
+    if (
+      name === "city" ||
+      name === "councilPlateNumber" ||
+      name === "renewalDate"
+    ) {
+      if (index !== undefined) {
+        setVehicleDetails((prevDetails) => {
+          const updatedCouncilPlates = [...prevDetails.councilPlates];
+
+          // Map the field names to the correct property names
+          const fieldMap: { [key: string]: keyof councilPlate } = {
+            city: "city",
+            councilPlateNumber: "plateNumber",
+            renewalDate: "renewalDate",
+          };
+
+          const fieldName = fieldMap[name];
+          if (fieldName) {
+            updatedCouncilPlates[index] = {
+              ...updatedCouncilPlates[index],
+              [fieldName]: value,
+            };
+          }
+
+          return {
+            ...prevDetails,
+            councilPlates: updatedCouncilPlates,
+          };
+        });
+      }
+    } else {
+      // Handle regular vehicle detail fields
+      setVehicleDetails((prevDetails) => ({
+        ...prevDetails,
+        [name]: value,
+      }));
+    }
+  }
+
+  function addNewCouncilPlate() {
     setVehicleDetails((prevDetails) => ({
       ...prevDetails,
-      [event.target.name]: event.target.value,
+      councilPlates: [
+        ...prevDetails.councilPlates,
+        { city: "", plateNumber: "", renewalDate: "" },
+      ],
+    }));
+  }
+
+  function removeCouncilPlate(indexToRemove: number) {
+    setVehicleDetails((prevDetails) => ({
+      ...prevDetails,
+      councilPlates: prevDetails.councilPlates.filter(
+        (_, index) => index !== indexToRemove,
+      ),
     }));
   }
 
@@ -85,11 +148,45 @@ export default function AddVehicle() {
         console.error(error);
       });
   }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    console.log(vehicleDetails);
+
+    // Check all main fields
+    if (
+      !vehicleDetails.vrm ||
+      !vehicleDetails.make ||
+      !vehicleDetails.model ||
+      !vehicleDetails.mileage ||
+      !vehicleDetails.motExpiryDate ||
+      !vehicleDetails.roadTaxExpiryDate ||
+      !vehicleDetails.company ||
+      !vehicleDetails.weeklyRent
+    ) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    // Check council plates - ensure each plate has all fields filled
+    const hasEmptyCouncilPlate = vehicleDetails.councilPlates.some(
+      (plate) => !plate.city || !plate.plateNumber || !plate.renewalDate,
+    );
+
+    if (hasEmptyCouncilPlate) {
+      alert("Please fill in all council plate details");
+      return;
+    }
+
+    // If validation passes, proceed with submission
+    console.log("Form is valid, submitting:", vehicleDetails);
+  }
+
   return (
     <Stack spacing={3}>
       <Typography id="title">Add Vehicle</Typography>
 
-      <Box>
+      <Box component="form" onSubmit={handleSubmit}>
         <Accordion
           expanded={expanded === "panel1"}
           onChange={handlePanelChange("panel1")}
@@ -187,24 +284,27 @@ export default function AddVehicle() {
             <AccordionTitle icon="2" title="Taxi Details" />
           </AccordionSummary>
           <AccordionDetails>
-            <Grid container spacing={4}>
-              <AddVehicleInput
-                size={3}
-                name="councilPlateNumber"
-                label="Council Plate Number"
-                value={vehicleDetails.councilPlateNumber}
-                type="text"
-                handleChange={handleChange}
-              />
-              <AddVehicleInput
-                size={3}
-                name="renewalDate"
-                label="Renewal Date"
-                value={vehicleDetails.renewalDate}
-                type="Date"
-                handleChange={handleChange}
-              />
-            </Grid>
+            <Stack spacing={2}>
+              {vehicleDetails.councilPlates.map(
+                ({ city, plateNumber, renewalDate }, index) => (
+                  <CouncilPlateInput
+                    key={index}
+                    index={index}
+                    city={city}
+                    plateNumber={plateNumber}
+                    renewalDate={renewalDate}
+                    handleChange={handleChange}
+                    addNewPlate={addNewCouncilPlate}
+                    removePlate={removeCouncilPlate}
+                    showAddButton={
+                      index === vehicleDetails.councilPlates.length - 1 &&
+                      vehicleDetails.councilPlates.length < 3
+                    }
+                    showRemoveButton={vehicleDetails.councilPlates.length > 1}
+                  />
+                ),
+              )}
+            </Stack>
           </AccordionDetails>
         </Accordion>
         <Accordion
@@ -216,7 +316,7 @@ export default function AddVehicle() {
             <AccordionTitle icon="3" title="Rental Information" />
           </AccordionSummary>
           <AccordionDetails>
-            <Grid container spacing={4}>
+            <Grid container spacing={4} sx={{ width: "80%" }}>
               <AddVehicleInput
                 size={3}
                 name="company"
@@ -235,6 +335,17 @@ export default function AddVehicle() {
                 handleChange={handleChange}
                 adornment={{ position: "start", adornment: "£" }}
               />
+
+              <Grid size={6}></Grid>
+              <Grid size={4}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{ backgroundColor: "primary.main", color: "#FFFFFF" }}
+                >
+                  Add Vehicle
+                </Button>
+              </Grid>
             </Grid>
           </AccordionDetails>
         </Accordion>

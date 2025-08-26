@@ -49,6 +49,7 @@ export default function AddVehicleInput({
             },
           }}
           fullWidth
+          required
         />
       ) : (
         <FormControl fullWidth>
@@ -63,6 +64,7 @@ export default function AddVehicleInput({
             value={value}
             label={label}
             onChange={handleChange}
+            required
           >
             {options.map((option, index) => (
               <MenuItem key={index} value={option}>
