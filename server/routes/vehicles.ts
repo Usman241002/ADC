@@ -16,7 +16,7 @@ interface DVLAResponse {
 function formatDate(dateString?: string): string {
   if (!dateString) return "";
   const [year, month, day] = dateString.split("-");
-  return `${day}-${month}-${year}`;
+  return `${year}-${month}-${day}`;
 }
 
 // POST /api/vehicles/lookup
@@ -64,8 +64,8 @@ vehiclesRouter.post("/lookup", async (req, res) => {
       success: true,
       data: {
         make: data.make,
-        motExpiryDate: formatDate(data.motExpiryDate),
-        taxDueDate: formatDate(data.taxDueDate),
+        motExpiryDate: data.motExpiryDate,
+        taxDueDate: data.taxDueDate,
       },
     });
   } catch (error) {
