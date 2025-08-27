@@ -1,26 +1,27 @@
-// routes/vehicle.ts (or vehicle.js)
-import express from "express";
+import * as VehicleModel from "../models/vehicle.model.js";
 
-export const vehiclesRouter = express.Router();
-
-interface DVLAResponse {
-  registrationNumber: string;
-  make: string;
-  model: string;
-  colour: string;
-  fuelType: string;
-  motExpiryDate?: string;
-  taxDueDate?: string;
+export async function getVehicles(req, res) {
+  try {
+    const vehicles = await VehicleModel.getAllVehicles();
+    res.status(200).json(vehicles);
+  } catch (err) {
+    console.error("Error fetching vehicles:", err);
+    res.status(500).json({ error: "Failed to fetch vehicles" });
+  }
 }
 
-function formatDate(dateString?: string): string {
-  if (!dateString) return "";
-  const [year, month, day] = dateString.split("-");
-  return `${year}-${month}-${day}`;
+export async function addVehicle(req, res) {
+  try {
+    const vehicleData = req.body;
+    const newVehicle = VehicleModel.addVehicleDetails(vehicleData);
+    res.status(200).json(newVehicle);
+  } catch (err) {
+    console.error("Error adding vehicle:", err);
+    res.status(500).json({ error: "Failed to add vehicle" });
+  }
 }
 
-// POST /api/vehicles/lookup
-vehiclesRouter.post("/lookup", async (req, res) => {
+export async function vehicleLookup(req, res) {
   try {
     const { registrationNumber } = req.body;
 
@@ -37,11 +38,11 @@ vehiclesRouter.post("/lookup", async (req, res) => {
       });
     }
 
-    const response = await fetch(process.env.DVLA_API_URL!, {
+    const response = await fetch(process.env.DVLA_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": process.env.DVLA_API_KEY!,
+        "x-api-key": process.env.DVLA_API_KEY,
       },
       body: JSON.stringify({
         registrationNumber: cleanVRM,
@@ -57,7 +58,7 @@ vehiclesRouter.post("/lookup", async (req, res) => {
       throw new Error(`DVLA API error: ${response.status}`);
     }
 
-    const data: DVLAResponse = await response.json();
+    const data = await response.json();
 
     // Return sanitized data
     res.json({
@@ -73,10 +74,7 @@ vehiclesRouter.post("/lookup", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch vehicle data",
-      error:
-        process.env.NODE_ENV === "development"
-          ? (error as Error).message
-          : undefined,
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
-});
+}

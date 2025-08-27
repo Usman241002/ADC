@@ -12,49 +12,43 @@ import {
   Button,
 } from "@mui/material";
 import { TuneOutlined } from "@mui/icons-material";
+import { useState, useEffect } from "react";
+
+type vehicleData = {
+  id: string;
+  vrm: string;
+  make: string;
+  model: string;
+  mileage: number;
+  mot_expiry_date: string;
+  road_tax_expiry_date: string;
+  company: string;
+  weekly_rent: number;
+  status: string;
+};
 
 export default function Dashboard() {
-  {
-    /*Replace with appropriate code */
+  const [carData, setCarData] = useState<vehicleData[]>([]);
+  useEffect(() => {
+    async function fetchCarData() {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/vehicles`,
+      );
+      const data = await response.json();
+      console.log(data);
+      setCarData(data);
+    }
+
+    fetchCarData();
+  }, []);
+
+  function formatDateToDDMMYYYY(dateStr: string) {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
   }
-  const fakeCarData = [
-    {
-      vrm: "XXXX-XXX",
-      make: "Toyota",
-      model: "Prius",
-      year: 2022,
-      mileage: 15000,
-      mot: "22-08-2026",
-      roadTax: "22-08-2026",
-      plate: "Birmingham",
-      company: "ADC",
-      status: "Available",
-    },
-    {
-      vrm: "XXXX-XXX",
-      make: "Toyota",
-      model: "Prius",
-      year: 2022,
-      mileage: 15000,
-      mot: "22-08-2026",
-      roadTax: "22-08-2026",
-      plate: "Solihull",
-      company: "ADC",
-      status: "Reserved",
-    },
-    {
-      vrm: "XXXX-XXX",
-      make: "Toyota",
-      model: "Prius",
-      year: 2022,
-      mileage: 15000,
-      mot: "22-08-2026",
-      roadTax: "22-08-2026",
-      plate: "Wolverhampton",
-      company: "ADC",
-      status: "Maintenance",
-    },
-  ];
 
   return (
     <Stack spacing={3}>
@@ -93,7 +87,7 @@ export default function Dashboard() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {fakeCarData.map((car) => (
+              {carData.map((car) => (
                 <TableRow
                   key={car.vrm}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -101,9 +95,13 @@ export default function Dashboard() {
                   <TableCell>{car.vrm}</TableCell>
                   <TableCell>{`${car.make} ${car.model}`}</TableCell>
                   <TableCell>{car.mileage}</TableCell>
-                  <TableCell>{car.mot}</TableCell>
-                  <TableCell>{car.roadTax}</TableCell>
-                  <TableCell>{car.plate}</TableCell>
+                  <TableCell>
+                    {formatDateToDDMMYYYY(car.mot_expiry_date)}
+                  </TableCell>
+                  <TableCell>
+                    {formatDateToDDMMYYYY(car.road_tax_expiry_date)}
+                  </TableCell>
+                  <TableCell>{car.council_plate}</TableCell>
                   <TableCell>{car.company}</TableCell>
                   <TableCell
                     sx={{

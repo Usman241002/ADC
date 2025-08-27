@@ -5,7 +5,6 @@ import {
   AccordionSummary,
   Box,
   Button,
-  FormControl,
   Grid,
   IconButton,
   InputAdornment,
@@ -17,6 +16,7 @@ import { useState } from "react";
 import AccordionTitle from "../components/AccordionTitle";
 import AddVehicleInput from "../components/AddVehicleInput";
 import CouncilPlateInput from "../components/CouncilPlateInput";
+import { useNavigate } from "react-router-dom";
 
 type councilPlate = {
   city: string;
@@ -49,6 +49,7 @@ export default function AddVehicle() {
     company: "",
     weeklyRent: 0,
   });
+  const navigate = useNavigate();
 
   const handlePanelChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
@@ -123,16 +124,13 @@ export default function AddVehicle() {
   }
 
   function handleSearch() {
-    fetch(
-      `${(import.meta as any).env.VITE_API_URL || "http://localhost:8000"}/api/vehicles/lookup`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ registrationNumber: vehicleDetails.vrm }),
+    fetch(`${import.meta.env.VITE_API_URL}/api/vehicles/lookup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    )
+      body: JSON.stringify({ registrationNumber: vehicleDetails.vrm }),
+    })
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -149,9 +147,8 @@ export default function AddVehicle() {
       });
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    console.log(vehicleDetails);
 
     // Check all main fields
     if (
@@ -180,6 +177,24 @@ export default function AddVehicle() {
 
     // If validation passes, proceed with submission
     console.log("Form is valid, submitting:", vehicleDetails);
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/vehicles`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(vehicleDetails),
+      },
+    );
+    const data = await response.json();
+    console.log("Response data:", data);
+
+    if (response.status === 200) {
+      navigate("/vehicles");
+    } else {
+      alert("Failed to add vehicle");
+    }
   }
 
   return (

@@ -1,22 +1,21 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "server.ts",
+  "description": "",
+  "main": "server.js",
   "scripts": {
-    "start": "nodemon --watch src --exec ts-node server.ts",
-    "dev": "ts-node server.ts"
+    "start": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
-    "express": "^5.1.0"
-  },
-  "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/node": "^24.3.0",
+    "express": "^5.1.0",
     "nodemon": "^3.1.10",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "pg": "^8.16.3"
   }
 }

@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { vehiclesRouter } from "./routes/vehicles";
-import { usersRouter } from "./routes/users";
-import { rentalsRouter } from "./routes/rentals";
+import { vehiclesRouter } from "./routes/vehicles.route.js";
+import { usersRouter } from "./routes/users.route.js";
+import { rentalsRouter } from "./routes/rentals.route.js";
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +18,6 @@ app.use("/api/users", usersRouter);
 app.use("/api/rentals", rentalsRouter);
 
 // Use environment variable for port with fallback
-const PORT = process.env.PORT || 8000;
+const PORT = 8000;
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
