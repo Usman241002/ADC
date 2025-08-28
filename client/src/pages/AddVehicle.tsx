@@ -118,7 +118,7 @@ export default function AddVehicle() {
                 size={4}
                 label="Road Tax Expiry"
                 name="roadTaxExpiryDate"
-                value={vehicleDetails.roadTaxExpiryDate}
+                value={vehicleDetails.road_tax_expiry_date}
                 type="Date"
                 handleChange={handleChange}
               />
@@ -135,22 +135,22 @@ export default function AddVehicle() {
           </AccordionSummary>
           <AccordionDetails>
             <Stack spacing={2}>
-              {vehicleDetails.councilPlates.map(
-                ({ city, plateNumber, renewalDate }, index) => (
+              {vehicleDetails.council_plates.map(
+                ({ city, plate_number, renewal_date }, index) => (
                   <CouncilPlateInput
                     key={index}
                     index={index}
                     city={city}
-                    plateNumber={plateNumber}
-                    renewalDate={renewalDate}
+                    plateNumber={plate_number}
+                    renewalDate={renewal_date}
                     handleChange={handleChange}
                     addNewPlate={addNewCouncilPlate}
                     removePlate={removeCouncilPlate}
                     showAddButton={
-                      index === vehicleDetails.councilPlates.length - 1 &&
-                      vehicleDetails.councilPlates.length < 3
+                      index === vehicleDetails.council_plates.length - 1 &&
+                      vehicleDetails.council_plates.length < 3
                     }
-                    showRemoveButton={vehicleDetails.councilPlates.length > 1}
+                    showRemoveButton={vehicleDetails.council_plates.length > 1}
                   />
                 ),
               )}

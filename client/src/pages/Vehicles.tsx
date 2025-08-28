@@ -119,7 +119,6 @@ export default function Vehicles() {
           </Stack>
         </Box>
 
-        {/** Replace with appropriate code */}
         {/*Add Filtering */}
         <Stack spacing={1} sx={{ px: 3, py: 2 }}>
           <Typography id="title">List of Vehicles</Typography>

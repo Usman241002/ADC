@@ -8,6 +8,7 @@ import AddVehicle from "./pages/AddVehicle";
 import Dashboard from "./pages/Dashboard";
 import Payments from "./pages/Payment";
 import Rentals from "./pages/Rentals";
+import AddRental from "./pages/AddRental";
 import Vehicles from "./pages/Vehicles";
 import { setVehicles } from "./features/vehiclesSlice";
 
@@ -67,6 +68,7 @@ export default function App() {
             <Route path="/vehicles" element={<Vehicles />} />
             <Route path="/vehicles/add" element={<AddVehicle />} />
             <Route path="/rentals" element={<Rentals />} />
+            <Route path="/rentals/add" element={<AddRental />} />
             <Route path="/payment" element={<Payments />} />
             <Route path="/admin" element={<Admin />} />
           </Route>
