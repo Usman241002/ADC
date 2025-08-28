@@ -1,38 +1,26 @@
 import { Box, Typography } from "@mui/material";
+import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 
 export default function AccordionTitle({
-  icon,
   title,
+  arrow,
 }: {
   title: string;
-  icon?: string;
+  arrow: boolean;
 }) {
   return (
     <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        gap: 1,
-      }}
+      sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}
     >
-      <Box
-        sx={{
-          backgroundColor: "primary.main",
-          color: "#FFFFFF",
-          borderRadius: "50%",
-          width: "2rem", // make width and height equal
-          height: "2rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontWeight: "bold",
-        }}
-      >
-        {icon}
-      </Box>
-      <Typography sx={{ color: "primary.main", fontSize: "1.25rem" }}>
+      <Typography sx={{ color: "#666666", fontSize: "1.25rem" }}>
         {title}
       </Typography>
+
+      {arrow ? (
+        <KeyboardArrowUp sx={{ color: "#666666" }} />
+      ) : (
+        <KeyboardArrowDown sx={{ color: "#666666" }} />
+      )}
     </Box>
   );
 }

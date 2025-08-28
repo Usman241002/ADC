@@ -8,7 +8,7 @@ import {
   Select,
   Tooltip,
 } from "@mui/material";
-import AddVehicleInput from "./AddVehicleInput";
+import Input from "./Input";
 
 export default function CouncilPlateInput({
   city,
@@ -62,7 +62,7 @@ export default function CouncilPlateInput({
           </Select>
         </FormControl>
       </Grid>
-      <AddVehicleInput
+      <Input
         size={3}
         name="councilPlateNumber"
         label="Council Plate Number"
@@ -70,7 +70,7 @@ export default function CouncilPlateInput({
         type="text"
         handleChange={handleCouncilPlateChange}
       />
-      <AddVehicleInput
+      <Input
         size={3}
         name="renewalDate"
         label="Renewal Date"

@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 
 import AccordionTitle from "../components/AccordionTitle";
-import AddVehicleInput from "../components/AddVehicleInput";
+import Input from "../components/Input";
 import CouncilPlateInput from "../components/CouncilPlateInput";
 
 import { useVehicleForm } from "../app/hooks/useVehicleForm";
@@ -43,7 +43,10 @@ export default function AddVehicle() {
           disableGutters
         >
           <AccordionSummary>
-            <AccordionTitle icon="1" title="Specifications" />
+            <AccordionTitle
+              title="Specifications"
+              arrow={expanded === "panel1"}
+            />
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={4}>
@@ -81,7 +84,7 @@ export default function AddVehicle() {
 
               <Grid size={8}></Grid>
 
-              <AddVehicleInput
+              <Input
                 size={4}
                 label="Make"
                 name="make"
@@ -89,7 +92,7 @@ export default function AddVehicle() {
                 type="text"
                 handleChange={handleChange}
               />
-              <AddVehicleInput
+              <Input
                 size={4}
                 label="Model"
                 name="model"
@@ -97,7 +100,7 @@ export default function AddVehicle() {
                 type="text"
                 handleChange={handleChange}
               />
-              <AddVehicleInput
+              <Input
                 size={4}
                 label="Mileage"
                 name="mileage"
@@ -106,15 +109,15 @@ export default function AddVehicle() {
                 handleChange={handleChange}
                 adornment={{ position: "end", adornment: "mi" }}
               />
-              <AddVehicleInput
+              <Input
                 size={4}
                 label="MOT Expiry"
                 name="motExpiryDate"
-                value={vehicleDetails.motExpiryDate}
+                value={vehicleDetails.mot_expiry_date}
                 type="Date"
                 handleChange={handleChange}
               />
-              <AddVehicleInput
+              <Input
                 size={4}
                 label="Road Tax Expiry"
                 name="roadTaxExpiryDate"
@@ -131,7 +134,10 @@ export default function AddVehicle() {
           disableGutters
         >
           <AccordionSummary>
-            <AccordionTitle icon="2" title="Taxi Details" />
+            <AccordionTitle
+              title="Taxi Details"
+              arrow={expanded === "panel2"}
+            />
           </AccordionSummary>
           <AccordionDetails>
             <Stack spacing={2}>
@@ -163,11 +169,14 @@ export default function AddVehicle() {
           disableGutters
         >
           <AccordionSummary>
-            <AccordionTitle icon="3" title="Rental Information" />
+            <AccordionTitle
+              title="Rental Information"
+              arrow={expanded === "panel3"}
+            />
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={4} sx={{ width: "80%" }}>
-              <AddVehicleInput
+              <Input
                 size={3}
                 name="company"
                 label="Company"
@@ -176,7 +185,7 @@ export default function AddVehicle() {
                 options={["ADC", "Accident Direct Claims"]}
                 handleChange={handleChange}
               />
-              <AddVehicleInput
+              <Input
                 size={3}
                 name="weeklyRent"
                 label="Weekly Rent"

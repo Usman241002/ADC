@@ -1,5 +1,4 @@
 import { pool } from "../db/db.js";
-import {} from "../utils.js";
 
 export async function getAllVehicles() {
   const query = `
