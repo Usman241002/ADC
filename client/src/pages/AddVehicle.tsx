@@ -12,190 +12,25 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+
 import AccordionTitle from "../components/AccordionTitle";
 import AddVehicleInput from "../components/AddVehicleInput";
 import CouncilPlateInput from "../components/CouncilPlateInput";
-import { useNavigate } from "react-router-dom";
 
-type councilPlate = {
-  city: string;
-  plateNumber: string;
-  renewalDate: string;
-};
-
-type vehicleDetails = {
-  vrm: string;
-  make: string;
-  model: string;
-  mileage: number;
-  motExpiryDate: string;
-  roadTaxExpiryDate: string;
-  councilPlates: councilPlate[];
-  company: string;
-  weeklyRent: number;
-};
+import { useVehicleForm } from "../app/hooks/useVehicleForm";
 
 export default function AddVehicle() {
-  const [expanded, setExpanded] = useState<string | false>("panel1");
-  const [vehicleDetails, setVehicleDetails] = useState<vehicleDetails>({
-    vrm: "",
-    make: "",
-    model: "",
-    mileage: 0,
-    motExpiryDate: "",
-    roadTaxExpiryDate: "",
-    councilPlates: [{ city: "", plateNumber: "", renewalDate: "" }],
-    company: "",
-    weeklyRent: 0,
-  });
-  const navigate = useNavigate();
-
-  const handlePanelChange =
-    (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-      setExpanded(newExpanded ? panel : false);
-    };
-
-  function handleChange(
-    event:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLSelectElement>,
-    index?: number,
-  ) {
-    const { name, value } = event.target;
-
-    // Handle council plate fields
-    if (
-      name === "city" ||
-      name === "councilPlateNumber" ||
-      name === "renewalDate"
-    ) {
-      if (index !== undefined) {
-        setVehicleDetails((prevDetails) => {
-          const updatedCouncilPlates = [...prevDetails.councilPlates];
-
-          // Map the field names to the correct property names
-          const fieldMap: { [key: string]: keyof councilPlate } = {
-            city: "city",
-            councilPlateNumber: "plateNumber",
-            renewalDate: "renewalDate",
-          };
-
-          const fieldName = fieldMap[name];
-          if (fieldName) {
-            updatedCouncilPlates[index] = {
-              ...updatedCouncilPlates[index],
-              [fieldName]: value,
-            };
-          }
-
-          return {
-            ...prevDetails,
-            councilPlates: updatedCouncilPlates,
-          };
-        });
-      }
-    } else {
-      // Handle regular vehicle detail fields
-      setVehicleDetails((prevDetails) => ({
-        ...prevDetails,
-        [name]: value,
-      }));
-    }
-  }
-
-  function addNewCouncilPlate() {
-    setVehicleDetails((prevDetails) => ({
-      ...prevDetails,
-      councilPlates: [
-        ...prevDetails.councilPlates,
-        { city: "", plateNumber: "", renewalDate: "" },
-      ],
-    }));
-  }
-
-  function removeCouncilPlate(indexToRemove: number) {
-    setVehicleDetails((prevDetails) => ({
-      ...prevDetails,
-      councilPlates: prevDetails.councilPlates.filter(
-        (_, index) => index !== indexToRemove,
-      ),
-    }));
-  }
-
-  function handleSearch() {
-    fetch(`${import.meta.env.VITE_API_URL}/api/vehicles/lookup`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ registrationNumber: vehicleDetails.vrm }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setVehicleDetails({
-          ...vehicleDetails,
-          make: data.data.make,
-          model: data.data.model,
-          motExpiryDate: data.data.motExpiryDate,
-          roadTaxExpiryDate: data.data.taxDueDate,
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    // Check all main fields
-    if (
-      !vehicleDetails.vrm ||
-      !vehicleDetails.make ||
-      !vehicleDetails.model ||
-      !vehicleDetails.mileage ||
-      !vehicleDetails.motExpiryDate ||
-      !vehicleDetails.roadTaxExpiryDate ||
-      !vehicleDetails.company ||
-      !vehicleDetails.weeklyRent
-    ) {
-      alert("Please fill in all required fields");
-      return;
-    }
-
-    // Check council plates - ensure each plate has all fields filled
-    const hasEmptyCouncilPlate = vehicleDetails.councilPlates.some(
-      (plate) => !plate.city || !plate.plateNumber || !plate.renewalDate,
-    );
-
-    if (hasEmptyCouncilPlate) {
-      alert("Please fill in all council plate details");
-      return;
-    }
-
-    // If validation passes, proceed with submission
-    console.log("Form is valid, submitting:", vehicleDetails);
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/vehicles`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(vehicleDetails),
-      },
-    );
-    const data = await response.json();
-    console.log("Response data:", data);
-
-    if (response.status === 200) {
-      navigate("/vehicles");
-    } else {
-      alert("Failed to add vehicle");
-    }
-  }
+  const {
+    expanded,
+    vehicleDetails,
+    setVehicleDetails,
+    handlePanelChange,
+    handleChange,
+    addNewCouncilPlate,
+    removeCouncilPlate,
+    handleSubmit,
+    handleSearch,
+  } = useVehicleForm();
 
   return (
     <Stack spacing={3}>

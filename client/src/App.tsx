@@ -1,5 +1,7 @@
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import Layout from "./components/Layout";
 import Admin from "./pages/Admin";
 import AddVehicle from "./pages/AddVehicle";
@@ -7,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Payments from "./pages/Payment";
 import Rentals from "./pages/Rentals";
 import Vehicles from "./pages/Vehicles";
+import { setVehicles } from "./features/vehiclesSlice";
 
 export default function App() {
   const theme = createTheme({
@@ -40,6 +43,20 @@ export default function App() {
       },
     },
   });
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    async function fetchCarData() {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/vehicles`,
+      );
+      const data = await response.json();
+      dispatch(setVehicles(data));
+    }
+
+    fetchCarData();
+  }, [dispatch]);
 
   return (
     <ThemeProvider theme={theme}>

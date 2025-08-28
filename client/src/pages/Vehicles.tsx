@@ -18,43 +18,14 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
-type vehicleData = {
-  id: string;
-  vrm: string;
-  make: string;
-  model: string;
-  mileage: number;
-  mot_expiry_date: string;
-  road_tax_expiry_date: string;
-  company: string;
-  weekly_rent: number;
-  status: string;
-};
+import { formatDateToDDMMYYYY } from "../app/utils.ts";
+import type { RootState } from "../app/store";
 
 export default function Vehicles() {
-  const [carData, setCarData] = useState<vehicleData[]>([]);
+  const vehicles = useSelector((state: RootState) => state.vehicles);
 
-  useEffect(() => {
-    async function fetchCarData() {
-      const response = await fetch("http://localhost:8000/api/vehicles");
-      const data = await response.json();
-      console.log(data);
-      setCarData(data);
-    }
-
-    fetchCarData();
-  }, []);
-
-  function formatDateToDDMMYYYY(dateStr: string) {
-    const date = new Date(dateStr);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  }
   return (
     <Stack spacing={3}>
       <Typography id="title">Vehicles</Typography>
@@ -168,32 +139,37 @@ export default function Vehicles() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {carData.map((car) => (
+                {vehicles.map((vehicle) => (
                   <TableRow
-                    key={car.vrm}
+                    key={vehicle.vrm}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    <TableCell>{car.vrm}</TableCell>
-                    <TableCell>{`${car.make} ${car.model}`}</TableCell>
-                    <TableCell>{car.mileage}</TableCell>
+                    <TableCell>{vehicle.vrm}</TableCell>
+                    <TableCell>{`${vehicle.make} ${vehicle.model}`}</TableCell>
+                    <TableCell>{vehicle.mileage}</TableCell>
                     <TableCell>
-                      {formatDateToDDMMYYYY(car.mot_expiry_date)}
+                      {formatDateToDDMMYYYY(vehicle.mot_expiry_date)}
                     </TableCell>
                     <TableCell>
-                      {formatDateToDDMMYYYY(car.road_tax_expiry_date)}
+                      {formatDateToDDMMYYYY(vehicle.road_tax_expiry_date)}
                     </TableCell>
-                    <TableCell>{car.plate}</TableCell>
-                    <TableCell>{car.company}</TableCell>
+                    <TableCell>
+                      {" "}
+                      {vehicle.council_plates
+                        ?.map((plate) => plate.city)
+                        .join(", ") || "No plates"}
+                    </TableCell>
+                    <TableCell>{vehicle.company}</TableCell>
                     <TableCell
                       sx={{
                         color: {
                           Available: "success.main",
                           Reserved: "warning.main",
                           Maintenance: "error.main",
-                        }[car.status],
+                        }[vehicle.status],
                       }}
                     >
-                      {car.status}
+                      {vehicle.status}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -204,7 +180,7 @@ export default function Vehicles() {
                           backgroundColor: "#FFFFFF",
                           textTransform: "none",
                         }}
-                        disabled={car.status === "Available" ? false : true}
+                        disabled={vehicle.status === "Available" ? false : true}
                       >
                         Add Rental
                       </Button>

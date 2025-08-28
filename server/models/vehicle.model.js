@@ -2,8 +2,34 @@ import { pool } from "../db/db.js";
 import {} from "../utils.js";
 
 export async function getAllVehicles() {
-  const query =
-    "SELECT * FROM vehicles JOIN council_plates on vehicles.id = council_plates.vehicle_id ORDER BY vehicles.id ASC";
+  const query = `
+    SELECT
+        v.id,
+        v.vrm,
+        v.make,
+        v.model,
+        v.mileage,
+        v.mot_expiry_date,
+        v.road_tax_expiry_date,
+        v.company,
+        v.weekly_rent,
+        v.status,
+        COALESCE(
+            JSON_AGG(
+                JSON_BUILD_OBJECT(
+                    'id', cp.id,
+                    'city', cp.city,
+                    'plate_number', cp.plate_number,
+                    'renewal_date', cp.renewal_date
+                )
+            ) FILTER (WHERE cp.id IS NOT NULL),
+            '[]'::json
+        ) as council_plates
+    FROM vehicles v
+    LEFT JOIN council_plates cp ON v.id = cp.vehicle_id
+    GROUP BY v.id
+    ORDER BY v.id ASC
+  `;
 
   try {
     const results = await pool.query(query);
@@ -38,7 +64,7 @@ export async function addVehicleDetails(vehicleData) {
     const vehicleValues = [
       vrm,
       make,
-      model,
+      model.toUpperCase(),
       mileage,
       motExpiryDate,
       roadTaxExpiryDate,
@@ -58,7 +84,7 @@ export async function addVehicleDetails(vehicleData) {
       const plateValues = [
         vehicleId,
         plate.city,
-        plate.plateNumber,
+        plate.plateNumber.toUpperCase(),
         plate.renewalDate,
       ];
 
