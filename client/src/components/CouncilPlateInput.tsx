@@ -12,20 +12,20 @@ import Input from "./Input";
 
 export default function CouncilPlateInput({
   city,
-  plateNumber,
-  renewalDate,
-  handleChange,
+  plate_number,
+  renewal_date,
   index,
+  handleChange,
   addNewPlate,
   removePlate,
   showAddButton,
   showRemoveButton,
 }: {
   city: string;
-  plateNumber: string;
-  renewalDate: string;
-  handleChange: (event: any, index?: number) => void;
+  plate_number: string;
+  renewal_date: string;
   index: number;
+  handleChange: (event: any, index: number) => void;
   addNewPlate: () => void;
   removePlate: (index: number) => void;
   showAddButton: boolean;
@@ -64,17 +64,17 @@ export default function CouncilPlateInput({
       </Grid>
       <Input
         size={3}
-        name="councilPlateNumber"
+        name="plate_number"
         label="Council Plate Number"
-        value={plateNumber}
+        value={plate_number}
         type="text"
         handleChange={handleCouncilPlateChange}
       />
       <Input
         size={3}
-        name="renewalDate"
+        name="renewal_date"
         label="Renewal Date"
-        value={renewalDate}
+        value={renewal_date}
         type="Date"
         handleChange={handleCouncilPlateChange}
       />

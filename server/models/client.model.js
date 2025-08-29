@@ -40,3 +40,15 @@ export async function createClient(clientData) {
     throw error;
   }
 }
+
+export async function getAllClients() {
+  try {
+    const query =
+      "SELECT id, first_name, last_name FROM clients ORDER BY first_name, last_name ASC";
+    const result = await pool.query(query);
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching clients:", error);
+    throw error;
+  }
+}

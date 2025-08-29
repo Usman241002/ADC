@@ -112,7 +112,7 @@ export default function AddVehicle() {
               <Input
                 size={4}
                 label="MOT Expiry"
-                name="motExpiryDate"
+                name="mot_expiry_date"
                 value={vehicleDetails.mot_expiry_date}
                 type="Date"
                 handleChange={handleChange}
@@ -120,7 +120,7 @@ export default function AddVehicle() {
               <Input
                 size={4}
                 label="Road Tax Expiry"
-                name="roadTaxExpiryDate"
+                name="road_tax_expiry_date"
                 value={vehicleDetails.road_tax_expiry_date}
                 type="Date"
                 handleChange={handleChange}
@@ -147,8 +147,8 @@ export default function AddVehicle() {
                     key={index}
                     index={index}
                     city={city}
-                    plateNumber={plate_number}
-                    renewalDate={renewal_date}
+                    plate_number={plate_number}
+                    renewal_date={renewal_date}
                     handleChange={handleChange}
                     addNewPlate={addNewCouncilPlate}
                     removePlate={removeCouncilPlate}
@@ -187,9 +187,9 @@ export default function AddVehicle() {
               />
               <Input
                 size={3}
-                name="weeklyRent"
+                name="weekly_rent"
                 label="Weekly Rent"
-                value={vehicleDetails.weeklyRent}
+                value={vehicleDetails.weekly_rent}
                 type="number"
                 handleChange={handleChange}
                 adornment={{ position: "start", adornment: "£" }}

@@ -45,12 +45,14 @@ export async function addVehicleDetails(vehicleData) {
     make,
     model,
     mileage,
-    motExpiryDate,
-    roadTaxExpiryDate,
-    councilPlates,
+    mot_expiry_date,
+    road_tax_expiry_date,
+    council_plates,
     company,
-    weeklyRent,
+    weekly_rent,
   } = vehicleData;
+
+  const uppercaseModel = model.toUpperCase();
 
   const client = await pool.connect();
 
@@ -63,19 +65,19 @@ export async function addVehicleDetails(vehicleData) {
     const vehicleValues = [
       vrm,
       make,
-      model.toUpperCase(),
+      uppercaseModel,
       mileage,
-      motExpiryDate,
-      roadTaxExpiryDate,
+      mot_expiry_date,
+      road_tax_expiry_date,
       company,
-      weeklyRent,
+      weekly_rent,
     ];
 
     const vehicleResult = await client.query(vehicleQuery, vehicleValues);
 
     const vehicleId = vehicleResult.rows[0].id;
 
-    for (const plate of councilPlates) {
+    for (const plate of council_plates) {
       const plateQuery = `
             INSERT INTO council_plates (vehicle_id, city, plate_number, renewal_date)
             VALUES ($1, $2, $3, $4::DATE)
@@ -83,8 +85,8 @@ export async function addVehicleDetails(vehicleData) {
       const plateValues = [
         vehicleId,
         plate.city,
-        plate.plateNumber.toUpperCase(),
-        plate.renewalDate,
+        plate.plate_number.toUpperCase(),
+        plate.renewal_date,
       ];
 
       await client.query(plateQuery, plateValues);

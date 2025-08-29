@@ -13,6 +13,6 @@ export type vehicleDetails = {
   road_tax_expiry_date: string;
   council_plates: councilPlate[];
   company: string;
-  weeklyRent: number;
+  weekly_rent: number;
   status: "Available" | "Reserved" | "Maintenance";
 };

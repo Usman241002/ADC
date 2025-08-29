@@ -15,7 +15,7 @@ export function useVehicleForm() {
     road_tax_expiry_date: "",
     council_plates: [{ city: "", plate_number: "", renewal_date: "" }],
     company: "",
-    weeklyRent: 0,
+    weekly_rent: 0,
   });
   const navigate = useNavigate();
 
@@ -25,19 +25,13 @@ export function useVehicleForm() {
     };
 
   function handleChange(
-    event:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLSelectElement>,
+    event: React.ChangeEvent<HTMLInputElement>,
     index?: number,
   ) {
     const { name, value } = event.target;
 
     // Handle council plate fields
-    if (
-      name === "city" ||
-      name === "councilPlateNumber" ||
-      name === "renewalDate"
-    ) {
+    if (name === "city" || name === "plate_number" || name === "renewal_date") {
       if (index !== undefined) {
         setVehicleDetails((prevDetails) => {
           const updatedCouncilPlates = [...prevDetails.council_plates];
@@ -59,7 +53,7 @@ export function useVehicleForm() {
 
           return {
             ...prevDetails,
-            councilPlates: updatedCouncilPlates,
+            council_plates: updatedCouncilPlates,
           };
         });
       }
@@ -69,15 +63,16 @@ export function useVehicleForm() {
         ...prevDetails,
         [name]: value,
       }));
+      console.log(vehicleDetails);
     }
   }
 
   function addNewCouncilPlate() {
     setVehicleDetails((prevDetails) => ({
       ...prevDetails,
-      councilPlates: [
+      council_plates: [
         ...prevDetails.council_plates,
-        { city: "", plateNumber: "", renewalDate: "" },
+        { city: "", plate_number: "", renewal_date: "" },
       ],
     }));
   }
@@ -127,7 +122,7 @@ export function useVehicleForm() {
       !vehicleDetails.mot_expiry_date ||
       !vehicleDetails.road_tax_expiry_date ||
       !vehicleDetails.company ||
-      !vehicleDetails.weeklyRent
+      !vehicleDetails.weekly_rent
     ) {
       alert("Please fill in all required fields");
       return;
