@@ -26,10 +26,12 @@ export default function useClientForm() {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/clients`);
     const data = await response.json();
 
-    const clientsWithStringIds = data.map((client: any) => ({
-      ...client,
-      id: client.id.toString(),
-    }));
+    const clientsWithStringIds = data.map(
+      (client: { id: string; first_name: string; last_name: string }) => ({
+        ...client,
+        id: client.id.toString(),
+      }),
+    );
     setClients(clientsWithStringIds);
   }
 

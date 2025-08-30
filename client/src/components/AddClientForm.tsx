@@ -11,6 +11,7 @@ import {
 import Input from "./Input";
 import { PersonAddAlt1Outlined } from "@mui/icons-material";
 import type { SelectChangeEvent } from "@mui/material";
+import type { rentalDetails } from "../app/types/rentals";
 
 type Client = {
   id: string;
@@ -18,7 +19,13 @@ type Client = {
   last_name: string;
 };
 
-export default function AddClientForm({ clientFormData }) {
+export default function AddClientForm({
+  clientFormData,
+  setRentalDetails,
+}: {
+  clientFormData: any;
+  setRentalDetails: React.Dispatch<React.SetStateAction<rentalDetails>>;
+}) {
   const {
     clientInfoVisibility,
     setClientInfoVisibility,
@@ -39,7 +46,12 @@ export default function AddClientForm({ clientFormData }) {
   // Handle client selection
   const handleClientSelect = (e: SelectChangeEvent) => {
     setSelectedClientId(e.target.value);
-    console.log(selectedClientId);
+    console.log(e.target.value);
+    console.log(typeof e.target.value);
+    setRentalDetails((prevDetails) => ({
+      ...prevDetails,
+      client_id: e.target.value,
+    }));
   };
 
   return (
@@ -182,7 +194,7 @@ export default function AddClientForm({ clientFormData }) {
               onChange={handleClientSelect}
               required
             >
-              {clientOptions.map((option) => (
+              {clientOptions.map((option: { value: string; label: string }) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
