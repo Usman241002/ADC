@@ -173,6 +173,8 @@ export default function Vehicles() {
                     <TableCell>
                       <Button
                         variant="contained"
+                        component={Link}
+                        to={`/rentals/add/${vehicle.id}`}
                         size="small"
                         sx={{
                           color: "primary.main",

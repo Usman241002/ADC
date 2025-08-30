@@ -16,3 +16,18 @@ export type availableVehicles = {
   weekly_rent: number;
   status: "Available";
 };
+
+export interface PaymentItem {
+  id: string;
+  payment_type: string;
+  payment_amount: number;
+  payment_method: string;
+  payment_date: string;
+}
+
+export interface PaymentForm {
+  payment_type: string;
+  payment_amount: string;
+  payment_method: string;
+  payment_date: string;
+}

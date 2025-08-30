@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import type { rentalDetails, availableVehicles } from "../types/rentals";
 
-export default function useRentalForm(selectedClientId: string) {
+export default function useRentalForm(
+  selectedClientId: string,
+  preSelectedVehicleId?: string,
+) {
   const [rentalDetails, setRentalDetails] = useState<rentalDetails>(() => {
     const today = new Date();
     const endDate = new Date(today);
     endDate.setDate(today.getDate() + 89);
 
     return {
-      vehicle_id: "",
+      vehicle_id: preSelectedVehicleId || "",
       client_id: selectedClientId,
       start_date: today.toISOString().split("T")[0],
       end_date: endDate.toISOString().split("T")[0],
@@ -16,21 +19,57 @@ export default function useRentalForm(selectedClientId: string) {
     };
   });
 
+  useEffect(() => {
+    if (selectedClientId) {
+      setRentalDetails((prev) => ({
+        ...prev,
+        client_id: selectedClientId,
+      }));
+    }
+  }, [selectedClientId]);
+
   const [availableVehicles, setAvailableVehicles] = useState<
     availableVehicles[]
   >([]);
+  const [vehiclesLoaded, setVehiclesLoaded] = useState(false);
 
   async function fetchVehiclesForRent() {
-    const response = await fetch(
-      `${`${import.meta.env.VITE_API_URL}/api/rentals`}`,
-    );
-    const data = await response.json();
-    setAvailableVehicles(data);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/rentals`,
+      );
+      const data = await response.json();
+      setAvailableVehicles(data);
+      setVehiclesLoaded(true);
+    } catch (error) {
+      console.error("Error fetching vehicles:", error);
+      setVehiclesLoaded(true); // Set to true even on error to prevent infinite loading
+    }
   }
 
   useEffect(() => {
     fetchVehiclesForRent();
   }, []);
+
+  useEffect(() => {
+    if (vehiclesLoaded && preSelectedVehicleId && !rentalDetails.vehicle_id) {
+      const vehicleExists = availableVehicles.find(
+        (vehicle) => vehicle.id.toString() === preSelectedVehicleId,
+      );
+
+      if (vehicleExists) {
+        setRentalDetails((prev) => ({
+          ...prev,
+          vehicle_id: preSelectedVehicleId,
+        }));
+      }
+    }
+  }, [
+    vehiclesLoaded,
+    preSelectedVehicleId,
+    availableVehicles,
+    rentalDetails.vehicle_id,
+  ]);
 
   // Handle vehicle selection
   const handleVehicleSelection = (vehicleId: string) => {
@@ -38,7 +77,6 @@ export default function useRentalForm(selectedClientId: string) {
       ...prev,
       vehicle_id: vehicleId,
     }));
-    console.log(rentalDetails);
   };
 
   function handleRentalChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -107,5 +145,6 @@ export default function useRentalForm(selectedClientId: string) {
     availableVehicles,
     handleVehicleSelection,
     handleRentalChange,
+    vehiclesLoaded,
   };
 }

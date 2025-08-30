@@ -5,6 +5,7 @@ export type councilPlate = {
 };
 
 export type vehicleDetails = {
+  id: number;
   vrm: string;
   make: string;
   model: string;
