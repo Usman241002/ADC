@@ -120,15 +120,49 @@ export default function AddRental() {
     setPayments((prev) => prev.filter((payment) => payment.id !== paymentId));
   };
 
-  // Calculate total payments
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-  // Calculate rental cost
+    // Check all main fields
+
+    if (
+      !rentalDetails.vehicle_id ||
+      !rentalDetails.client_id ||
+      !rentalDetails.start_date ||
+      !rentalDetails.end_date ||
+      !rentalDetails.duration_days
+    ) {
+      alert("Please fill in all rental details required fields");
+      return;
+    }
+
+    // If validation passes, proceed with submission
+    console.log("Form is valid, submitting:", rentalDetails);
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/rentals`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(rentalDetails),
+      },
+    );
+    const data = await response.json();
+    console.log("Response data:", data);
+
+    if (response.status === 200) {
+      navigate("/rentals");
+    } else {
+      alert("Failed to add rental");
+    }
+  }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <Typography id="title">Add Reservation</Typography>
       <Stack spacing={4} direction="row" justifyContent="space-between">
-        <Box width="65%">
+        <Box width="65%" component="form" onSubmit={handleSubmit}>
           <Accordion
             expanded={expanded === "panel1"}
             onChange={handlePanelChange("panel1")}
@@ -347,6 +381,7 @@ export default function AddRental() {
                       type="select"
                       options={["Deposit", "Payment"]}
                       handleChange={handlePaymentChange}
+                      required={false}
                     />
                     <Input
                       size={3}
@@ -355,6 +390,7 @@ export default function AddRental() {
                       value={paymentForm.payment_amount}
                       type="number"
                       handleChange={handlePaymentChange}
+                      required={false}
                     />
                     <Input
                       size={3}
@@ -364,6 +400,7 @@ export default function AddRental() {
                       type="select"
                       options={["Bank Transfer", "Cash"]}
                       handleChange={handlePaymentChange}
+                      required={false}
                     />
                     <Input
                       size={3}
@@ -372,6 +409,7 @@ export default function AddRental() {
                       value={paymentForm.payment_date}
                       type="Date"
                       handleChange={handlePaymentChange}
+                      required={false}
                     />
                   </Grid>
                   <Box
@@ -472,7 +510,23 @@ export default function AddRental() {
                 checked={completed.panel4}
               />
             </AccordionSummary>
-            <AccordionDetails></AccordionDetails>
+            <AccordionDetails>
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Button
+                  variant="contained"
+                  sx={{ color: "#FFFFFF" }}
+                  type="submit"
+                >
+                  Submit Reservation
+                </Button>
+              </Box>
+            </AccordionDetails>
           </Accordion>
         </Box>
 

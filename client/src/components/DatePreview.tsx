@@ -13,7 +13,7 @@ export default function DatePreview({ date, time }: DatePreviewProps) {
   const year = d.getFullYear();
 
   return (
-    <Stack flexDirection="column" alignItems="center" justifyContent="center">
+    <Stack flexDirection="column" alignItems="start" justifyContent="center">
       <Box
         sx={{
           backgroundColor: "#ECECEC",

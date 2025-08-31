@@ -36,7 +36,7 @@ export default function useRentalForm(
   async function fetchVehiclesForRent() {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/rentals`,
+        `${import.meta.env.VITE_API_URL}/api/rentals/availableVehicles`,
       );
       const data = await response.json();
       setAvailableVehicles(data);

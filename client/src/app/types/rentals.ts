@@ -31,3 +31,17 @@ export interface PaymentForm {
   payment_method: string;
   payment_date: string;
 }
+
+export type rentalsInfo = {
+  rental_id: number;
+  rental_status: string;
+  start_date: string;
+  end_date: string;
+  vehicle_vrm: string;
+  vehicle_make: string;
+  vehicle_model: string;
+  company: string;
+  customer_first_name: string;
+  customer_last_name: string;
+  weekly_rent: number;
+};

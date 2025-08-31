@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 export function useVehicleForm() {
   const [expanded, setExpanded] = useState<string | false>("panel1");
   const [vehicleDetails, setVehicleDetails] = useState<
-    Omit<vehicleDetails, "status">
+    Omit<vehicleDetails, { id; status }>
   >({
     vrm: "",
     make: "",

@@ -24,25 +24,11 @@ import {
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import DatePreview from "../components/DatePreview";
+import type { RootState } from "../app/store";
+import { useSelector } from "react-redux";
 
 export default function Rentals() {
-  const rentals = [
-    {
-      reservation: "123456",
-      info: {
-        created: "2023-01-01",
-        createdBy: "John Doe",
-      },
-      status: "Reserved",
-      start: { date: "2023-01-01", time: "10:00" },
-      end: { date: "2023-01-01", time: "10:00" },
-      vehicle: "Toyota Corolla",
-      company: "ADC Hire",
-      customer: "John Doe",
-      amount: "£50",
-    },
-  ];
-
+  const rentals = useSelector((state: RootState) => state.rentals);
   return (
     <Stack spacing={3}>
       <Typography id="title">Rentals</Typography>
@@ -143,43 +129,37 @@ export default function Rentals() {
               <TableBody>
                 {rentals.map((rental) => (
                   <TableRow>
-                    <TableCell>{rental.reservation}</TableCell>
+                    <TableCell>{rental.rental_id}</TableCell>
                     <TableCell>
                       <Typography variant="body1" color="#999999">
                         Created:
                       </Typography>
-                      <Typography variant="body1">
-                        {rental.info.created}
-                      </Typography>
-                      <Typography variant="body1">
-                        {rental.info.createdBy}
-                      </Typography>
+                      <Typography variant="body1">{""}</Typography>
+                      <Typography variant="body1">{""}</Typography>
                     </TableCell>
                     <TableCell
                       sx={{
                         color: {
-                          Available: "success.main",
-                          Reserved: "warning.main",
-                          Maintenance: "error.main",
-                        }[rental.status],
+                          Active: "warning.main",
+                          Inactive: "error.main",
+                        }[rental.rental_status],
                       }}
                     >
-                      {rental.status}
+                      {rental.rental_status}
                     </TableCell>
                     <TableCell>
-                      <DatePreview
-                        date={rental.start.date}
-                        time={rental.start.time}
-                      />
+                      <DatePreview date={rental.start_date} time={"10:00"} />
                     </TableCell>
                     <TableCell>
-                      <DatePreview
-                        date={rental.end.date}
-                        time={rental.end.time}
-                      />
+                      <DatePreview date={rental.end_date} time={"10:00"} />
                     </TableCell>
 
-                    <TableCell>{rental.vehicle}</TableCell>
+                    <TableCell>
+                      <Typography variant="body1" color="#999999">
+                        {rental.vehicle_vrm}
+                      </Typography>
+                      <Typography variant="body1">{`${rental.vehicle_make} ${rental.vehicle_model}`}</Typography>
+                    </TableCell>
                     <TableCell>{rental.company}</TableCell>
                     <TableCell>
                       <Box
@@ -191,15 +171,15 @@ export default function Rentals() {
                         }}
                       >
                         <Avatar>
-                          {rental.customer.split(" ")[0][0]}
-                          {rental.customer.split(" ")[1][0]}
+                          {rental.customer_first_name[0]}
+                          {rental.customer_last_name[0]}
                         </Avatar>
                         <Typography variant="body1">
-                          {rental.customer.toUpperCase()}
+                          {`${rental.customer_first_name} ${rental.customer_last_name}`}
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell>{rental.amount}</TableCell>
+                    <TableCell>{rental.weekly_rent}</TableCell>
                     <TableCell>
                       <Stack direction="row">
                         <IconButton>

@@ -11,6 +11,7 @@ import Rentals from "./pages/Rentals";
 import AddRental from "./pages/AddRental";
 import Vehicles from "./pages/Vehicles";
 import { setVehicles } from "./features/vehiclesSlice";
+import { setRentals } from "./features/rentalsSlice";
 
 export default function App() {
   const theme = createTheme({
@@ -56,7 +57,16 @@ export default function App() {
       dispatch(setVehicles(data));
     }
 
+    async function fetchRentalsData() {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/rentals`,
+      );
+      const data = await response.json();
+      dispatch(setRentals(data));
+    }
+
     fetchCarData();
+    fetchRentalsData();
   }, [dispatch]);
 
   return (

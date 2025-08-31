@@ -16,6 +16,7 @@ export default function AddVehicleInput({
   options = [],
   adornment = { position: "", adornment: "" },
   handleChange,
+  required = true,
 }: {
   size: number;
   name: string;
@@ -25,6 +26,7 @@ export default function AddVehicleInput({
   options?: string[];
   adornment?: { position: string; adornment: string };
   handleChange: (event: any) => void;
+  required?: boolean;
 }) {
   return (
     <Grid size={size}>
@@ -49,7 +51,7 @@ export default function AddVehicleInput({
             },
           }}
           fullWidth
-          required
+          required={required}
         />
       ) : (
         <FormControl fullWidth>
@@ -64,7 +66,7 @@ export default function AddVehicleInput({
             value={value}
             label={label}
             onChange={handleChange}
-            required
+            required={required}
           >
             {options.map((option, index) => (
               <MenuItem key={index} value={option}>
