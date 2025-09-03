@@ -13,6 +13,7 @@ export async function getAllVehicles() {
         v.company,
         v.weekly_rent,
         v.status,
+        v.type,
         COALESCE(
             JSON_AGG(
                 JSON_BUILD_OBJECT(
@@ -50,6 +51,7 @@ export async function addVehicleDetails(vehicleData) {
     council_plates,
     company,
     weekly_rent,
+    vehicle_type,
   } = vehicleData;
 
   const uppercaseModel = model.toUpperCase();
@@ -60,7 +62,7 @@ export async function addVehicleDetails(vehicleData) {
     await client.query("BEGIN");
 
     const vehicleQuery =
-      "INSERT INTO vehicles (vrm, make, model, mileage, mot_expiry_date, road_tax_expiry_date, company, weekly_rent) VALUES ($1, $2, $3, $4, $5::DATE, $6::DATE, $7, $8) RETURNING id";
+      "INSERT INTO vehicles (vrm, make, model, mileage, mot_expiry_date, road_tax_expiry_date, company, weekly_rent, type) VALUES ($1, $2, $3, $4, $5::DATE, $6::DATE, $7, $8, $9) RETURNING id";
 
     const vehicleValues = [
       vrm,
@@ -71,6 +73,7 @@ export async function addVehicleDetails(vehicleData) {
       road_tax_expiry_date,
       company,
       weekly_rent,
+      vehicle_type,
     ];
 
     const vehicleResult = await client.query(vehicleQuery, vehicleValues);

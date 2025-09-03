@@ -1,26 +1,31 @@
+import { FileUploadOutlined } from "@mui/icons-material";
 import {
   Button,
   Card,
   CardContent,
-  InputAdornment,
+  Grid,
   Stack,
-  TextField,
   Toolbar,
   Typography,
 } from "@mui/material";
-import {
-  FileUploadOutlined,
-  SearchOutlined,
-  TuneOutlined,
-} from "@mui/icons-material";
+import Input from "../components/Input";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import PaymentsTable from "../components/PaymentsTable";
 
-import RentalsTable from "../components/RentalsTable";
+export default function Payment() {
+  const [filter, setFilter] = useState({
+    name: "",
+    vrm: "",
+  });
 
-export default function Rentals() {
+  function handleFilterChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setFilter({ ...filter, [event.target.name]: event.target.value });
+  }
   return (
     <Stack spacing={3}>
-      <Typography id="title">Rentals</Typography>
+      <Typography id="title">Payment</Typography>
+
       <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
         <CardContent>
           <Stack
@@ -34,38 +39,31 @@ export default function Rentals() {
             }}
           >
             <Toolbar
-              sx={{ width: "100%", justifyContent: "space-between" }}
+              sx={{ width: "60%", justifyContent: "space-between" }}
               disableGutters
             >
-              <TextField
-                size="small"
-                variant="outlined"
-                placeholder="Search by VRM, Vehicle or Location"
-                sx={{ width: "22rem", fontSize: "0.875rem" }}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <SearchOutlined />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
+              <Grid container spacing={4} sx={{ width: "100%" }}>
+                <Input
+                  size={3}
+                  name="name"
+                  label="Driver Name"
+                  value={filter.name}
+                  type="select"
+                  options={["Driver1", "Driver2", "Driver3"]}
+                  handleChange={handleFilterChange}
+                />
+                <Input
+                  size={3}
+                  name="vrm"
+                  label="Registration"
+                  value={filter.vrm}
+                  type="select"
+                  options={["VRM1", "VRM2", "VRM3"]}
+                  handleChange={handleFilterChange}
+                />
+              </Grid>
             </Toolbar>
-            <Stack spacing={4} direction="row" width="75%" justifyContent="end">
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: "#FFFFFF",
-                  color: "#999999",
-                  textTransform: "none",
-                  gap: 1,
-                }}
-              >
-                <TuneOutlined sx={{ color: "#999999" }} />
-                Filters
-              </Button>
+            <Stack spacing={4} direction="row" justifyContent="end">
               <Button
                 variant="contained"
                 sx={{
@@ -91,14 +89,14 @@ export default function Rentals() {
                   textAlign: "center",
                 }}
               >
-                Add Reservation
+                Add Payment
               </Button>
             </Stack>
           </Stack>
 
           {/*Add Filtering */}
           <Stack sx={{ px: 1 }}>
-            <RentalsTable />
+            <PaymentsTable />
           </Stack>
         </CardContent>
       </Card>

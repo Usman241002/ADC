@@ -1,35 +1,26 @@
 import { Paper, Typography, Table, TableRow, TableCell } from "@mui/material";
 import type { rentalDetails, availableVehicles } from "../app/types/rentals";
-import type { PaymentItem } from "../app/types/rentals";
 
 type RentalTotal = {
   completed: {
     panel1: boolean;
     panel2: boolean;
     panel3: boolean;
-    panel4: boolean;
   };
   rentalDetails: rentalDetails;
   selectedVehicle: availableVehicles | undefined;
-  payments: PaymentItem[];
 };
 
 export default function RentalTotal({
   completed,
   rentalDetails,
   selectedVehicle,
-  payments,
 }: RentalTotal) {
-  const totalPaid = payments.reduce(
-    (sum, payment) => sum + payment.payment_amount,
-    0,
-  );
-
   const rentalCost = selectedVehicle
     ? (selectedVehicle.weekly_rent * rentalDetails.duration_days) / 7
     : 0;
 
-  const totalCost = rentalCost + 250;
+  const totalCost = rentalCost + selectedVehicle?.deposit_amount || 0;
   return (
     <Paper
       sx={{
@@ -101,25 +92,10 @@ export default function RentalTotal({
                   fontWeight: "bold",
                 }}
               >
-                £250.00
+                £{selectedVehicle.deposit_amount.toFixed(2)}
               </TableCell>
             </TableRow>
           </>
-        )}
-        {payments.length > 0 && (
-          <TableRow>
-            <TableCell>Total Paid:</TableCell>
-            <TableCell
-              sx={{
-                fontSize: "1rem",
-                textAlign: "end",
-                fontWeight: "bold",
-                color: "success.main",
-              }}
-            >
-              - £{totalPaid.toFixed(2)}
-            </TableCell>
-          </TableRow>
         )}
         {rentalDetails.duration_days && selectedVehicle && (
           <TableRow>
@@ -137,11 +113,10 @@ export default function RentalTotal({
                 fontSize: "1rem",
                 textAlign: "end",
                 fontWeight: "bold",
-                color:
-                  totalPaid >= rentalCost ? "success.main" : "primary.main",
+                color: "primary.main",
               }}
             >
-              £{Math.max(0, totalCost - totalPaid).toFixed(2)}
+              £{Math.max(totalCost).toFixed(2)}
             </TableCell>
           </TableRow>
         )}

@@ -26,7 +26,7 @@ export async function getAvailableVehicles(req, res) {
     const availableVehicles = await RentalsModel.getAllAvailableVehicles();
     res.status(200).json(availableVehicles);
   } catch (err) {
-    r("Error fetching available vehicles:", err);
+    ("Error fetching available vehicles:", err);
     res.status(500).json({ error: "Failed to fetch available vehicles" });
   }
 }

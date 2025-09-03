@@ -15,22 +15,8 @@ export type availableVehicles = {
   company: string;
   weekly_rent: number;
   status: "Available";
+  deposit_amount: number;
 };
-
-export interface PaymentItem {
-  id: string;
-  payment_type: string;
-  payment_amount: number;
-  payment_method: string;
-  payment_date: string;
-}
-
-export interface PaymentForm {
-  payment_type: string;
-  payment_amount: string;
-  payment_method: string;
-  payment_date: string;
-}
 
 export type rentalsInfo = {
   rental_id: number;

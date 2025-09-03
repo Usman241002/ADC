@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 export function useVehicleForm() {
   const [expanded, setExpanded] = useState<string | false>("panel1");
   const [vehicleDetails, setVehicleDetails] = useState<
-    Omit<vehicleDetails, { id; status }>
+    Omit<vehicleDetails, "id" | "status">
   >({
     vrm: "",
     make: "",
@@ -16,6 +16,7 @@ export function useVehicleForm() {
     council_plates: [{ city: "", plate_number: "", renewal_date: "" }],
     company: "",
     weekly_rent: 0,
+    vehicle_type: "Standard",
   });
   const navigate = useNavigate();
 
@@ -59,7 +60,7 @@ export function useVehicleForm() {
       }
     } else {
       // Handle regular vehicle detail fields
-      setVehicleDetails((prevDetails: Omit<vehicleDetails, "status">) => ({
+      setVehicleDetails((prevDetails) => ({
         ...prevDetails,
         [name]: value,
       }));
@@ -78,7 +79,7 @@ export function useVehicleForm() {
   }
 
   function removeCouncilPlate(indexToRemove: number) {
-    setVehicleDetails((prevDetails: Omit<vehicleDetails, "status">) => ({
+    setVehicleDetails((prevDetails) => ({
       ...prevDetails,
       council_plates: prevDetails.council_plates.filter(
         (_, index: number) => index !== indexToRemove,
@@ -122,7 +123,8 @@ export function useVehicleForm() {
       !vehicleDetails.mot_expiry_date ||
       !vehicleDetails.road_tax_expiry_date ||
       !vehicleDetails.company ||
-      !vehicleDetails.weekly_rent
+      !vehicleDetails.weekly_rent ||
+      !vehicleDetails.vehicle_type
     ) {
       alert("Please fill in all required fields");
       return;

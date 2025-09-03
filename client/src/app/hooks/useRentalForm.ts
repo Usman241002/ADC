@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { rentalDetails, availableVehicles } from "../types/rentals";
+import { useNavigate } from "react-router-dom";
 
 export default function useRentalForm(
   selectedClientId: string,
@@ -18,6 +19,8 @@ export default function useRentalForm(
       duration_days: 89,
     };
   });
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (selectedClientId) {
@@ -72,10 +75,10 @@ export default function useRentalForm(
   ]);
 
   // Handle vehicle selection
-  const handleVehicleSelection = (vehicleId: string) => {
+  const handleVehicleSelection = (vehicle_id: string) => {
     setRentalDetails((prev) => ({
       ...prev,
-      vehicle_id: vehicleId,
+      vehicle_id: vehicle_id,
     }));
   };
 
@@ -139,6 +142,43 @@ export default function useRentalForm(
     }
   }
 
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    // Check all main fields
+    if (
+      !rentalDetails.vehicle_id ||
+      !rentalDetails.client_id ||
+      !rentalDetails.start_date ||
+      !rentalDetails.end_date ||
+      !rentalDetails.duration_days
+    ) {
+      alert("Please fill in all rental details required fields");
+      return;
+    }
+
+    // If validation passes, proceed with submission
+    console.log("Form is valid, submitting:", rentalDetails);
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/rentals`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(rentalDetails),
+      },
+    );
+    const data = await response.json();
+    console.log("Response data:", data);
+
+    if (response.status === 200) {
+      navigate("/rentals");
+    } else {
+      alert("Failed to add rental");
+    }
+  }
+
   return {
     rentalDetails,
     setRentalDetails,
@@ -146,5 +186,6 @@ export default function useRentalForm(
     handleVehicleSelection,
     handleRentalChange,
     vehiclesLoaded,
+    handleSubmit,
   };
 }

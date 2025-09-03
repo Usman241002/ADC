@@ -187,6 +187,15 @@ export default function AddVehicle() {
               />
               <Input
                 size={3}
+                name="vehicle_type"
+                label="Vehicle Type"
+                value={vehicleDetails.vehicle_type}
+                type="select"
+                options={["Standard", "Executive"]}
+                handleChange={handleChange}
+              />
+              <Input
+                size={3}
                 name="weekly_rent"
                 label="Weekly Rent"
                 value={vehicleDetails.weekly_rent}

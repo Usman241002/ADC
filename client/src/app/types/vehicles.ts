@@ -15,5 +15,6 @@ export type vehicleDetails = {
   council_plates: councilPlate[];
   company: string;
   weekly_rent: number;
+  vehicle_type: "Standard" | "Executive";
   status: "Available" | "Reserved" | "Maintenance";
 };

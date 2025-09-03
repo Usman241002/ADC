@@ -13,7 +13,7 @@ export default function SubNav() {
     { text: "dashboard", icon: DashboardOutlined },
     { text: "vehicles", icon: DirectionsCarFilledOutlined },
     { text: "rentals", icon: ScheduleOutlined },
-    { text: "payment", icon: PaymentsOutlined },
+    { text: "payments", icon: PaymentsOutlined },
     { text: "admin", icon: AdminPanelSettingsOutlined },
   ];
 

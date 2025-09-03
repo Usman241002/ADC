@@ -6,12 +6,13 @@ import Layout from "./components/Layout";
 import Admin from "./pages/Admin";
 import AddVehicle from "./pages/AddVehicle";
 import Dashboard from "./pages/Dashboard";
-import Payments from "./pages/Payment";
+import Payments from "./pages/Payments";
 import Rentals from "./pages/Rentals";
 import AddRental from "./pages/AddRental";
 import Vehicles from "./pages/Vehicles";
 import { setVehicles } from "./features/vehiclesSlice";
 import { setRentals } from "./features/rentalsSlice";
+import { setPayments } from "./features/paymentsSlice";
 
 export default function App() {
   const theme = createTheme({
@@ -65,8 +66,18 @@ export default function App() {
       dispatch(setRentals(data));
     }
 
+    async function fetchPayments() {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/payments`,
+      );
+      const data = await response.json();
+
+      dispatch(setPayments(data));
+    }
+
     fetchCarData();
     fetchRentalsData();
+    fetchPayments();
   }, [dispatch]);
 
   return (
@@ -79,7 +90,7 @@ export default function App() {
             <Route path="/vehicles/add" element={<AddVehicle />} />
             <Route path="/rentals" element={<Rentals />} />
             <Route path="/rentals/add/:vehicle_id?" element={<AddRental />} />
-            <Route path="/payment" element={<Payments />} />
+            <Route path="/payments" element={<Payments />} />
             <Route path="/admin" element={<Admin />} />
           </Route>
         </Routes>
