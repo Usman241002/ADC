@@ -15,15 +15,17 @@ import { EditOutlined, FileDownloadOutlined } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import type { RootState } from "../app/store";
 import DatePreview from "../components/DatePreview";
+import { useNavigate } from "react-router-dom";
 
 export default function RentalsTable() {
   const rentals = useSelector((state: RootState) => state.rentals);
+  const navigate = useNavigate();
 
   return (
     <TableContainer>
       <Table>
         <TableHead>
-          <TableRow>
+          <TableRow key="header">
             <TableCell>ID</TableCell>
             <TableCell>Info</TableCell>
             <TableCell>Status</TableCell>
@@ -38,7 +40,7 @@ export default function RentalsTable() {
         </TableHead>
         <TableBody>
           {rentals.map((rental) => (
-            <TableRow>
+            <TableRow key={rental.rental_id}>
               <TableCell>{rental.rental_id}</TableCell>
               <TableCell>
                 <Typography variant="body1" color="#999999">
@@ -91,11 +93,15 @@ export default function RentalsTable() {
               </TableCell>
               <TableCell>{rental.weekly_rent}</TableCell>
               <TableCell>
-                <Stack direction="row">
+                <Stack direction="row" justifyContent="start">
                   <IconButton>
                     <FileDownloadOutlined color="primary" />
                   </IconButton>
-                  <IconButton>
+                  <IconButton
+                    onClick={() =>
+                      navigate(`/rentals/edit/${rental.rental_id}`)
+                    }
+                  >
                     <EditOutlined color="primary" />
                   </IconButton>
                 </Stack>

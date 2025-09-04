@@ -4,6 +4,8 @@ const router = express.Router();
 import {
   getRentals,
   addRental,
+  getRental,
+  updateRental,
   getAvailableVehicles,
 } from "../controllers/rentals.controller.js";
 
@@ -14,6 +16,12 @@ rentalsRouter.get("/", getRentals);
 
 //POST /api/rentals
 rentalsRouter.post("/", addRental);
+
+//GET /api/rentals/:id
+rentalsRouter.get("/:id", getRental);
+
+//PUT /api/rentals/:id
+rentalsRouter.put("/:id", updateRental);
 
 //GET /api/rentals/availableVehicles
 rentalsRouter.get("/availableVehicles", getAvailableVehicles);

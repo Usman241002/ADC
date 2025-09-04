@@ -24,7 +24,7 @@ export default function Payment() {
   }
   return (
     <Stack spacing={3}>
-      <Typography id="title">Payment</Typography>
+      <Typography id="title">Payments</Typography>
 
       <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
         <CardContent>

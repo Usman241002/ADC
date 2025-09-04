@@ -10,16 +10,14 @@ import {
   Typography,
 } from "@mui/material";
 import { formatDateToDDMMYYYY } from "../app/utils.ts";
-import { useEffect } from "react";
+
 import { useSelector } from "react-redux";
 import type { RootState } from "../app/store";
-
 import { Visibility, Download, Edit } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 export default function PaymentsTable() {
   const payments = useSelector((state: RootState) => state.payments);
-
-  useEffect(() => {}, []);
-
+  const navigate = useNavigate();
   return (
     <TableContainer>
       <Table>
@@ -84,7 +82,12 @@ export default function PaymentsTable() {
                 <IconButton color="primary">
                   <Download fontSize="small" />
                 </IconButton>
-                <IconButton color="primary">
+                <IconButton
+                  color="primary"
+                  onClick={() =>
+                    navigate(`/payments/edit/${payment.payment_id}`)
+                  }
+                >
                   <Edit fontSize="small" />
                 </IconButton>
               </TableCell>

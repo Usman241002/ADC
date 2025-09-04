@@ -1,8 +1,13 @@
 import type { vehicleDetails, councilPlate } from "../types/vehicles";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { formatDateToYYYYMMDD } from "../utils";
 
-export function useVehicleForm() {
+export function useVehicleForm({
+  vehicle = null,
+}: {
+  vehicle?: vehicleDetails | null;
+} = {}) {
   const [expanded, setExpanded] = useState<string | false>("panel1");
   const [vehicleDetails, setVehicleDetails] = useState<
     Omit<vehicleDetails, "id" | "status">
@@ -19,6 +24,27 @@ export function useVehicleForm() {
     vehicle_type: "Standard",
   });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (vehicle) {
+      setVehicleDetails({
+        vrm: vehicle.vrm || "",
+        make: vehicle.make || "",
+        model: vehicle.model || "",
+        mileage: vehicle.mileage || 0,
+        mot_expiry_date: formatDateToYYYYMMDD(vehicle.mot_expiry_date) || "",
+        road_tax_expiry_date:
+          formatDateToYYYYMMDD(vehicle.road_tax_expiry_date) || "",
+        council_plates:
+          vehicle.council_plates?.length > 0
+            ? vehicle.council_plates
+            : [{ city: "", plate_number: "", renewal_date: "" }],
+        company: vehicle.company || "",
+        weekly_rent: vehicle.weekly_rent || 0,
+        vehicle_type: vehicle.vehicle_type || "Standard",
+      });
+    }
+  }, [vehicle]);
 
   const handlePanelChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
@@ -101,7 +127,6 @@ export function useVehicleForm() {
         setVehicleDetails({
           ...vehicleDetails,
           make: data.data.make,
-          model: data.data.model,
           mot_expiry_date: data.data.motExpiryDate,
           road_tax_expiry_date: data.data.taxDueDate,
         });
@@ -140,25 +165,36 @@ export function useVehicleForm() {
       return;
     }
 
+    const isEdit = !!vehicle;
+    const url = isEdit
+      ? `${import.meta.env.VITE_API_URL}/api/vehicles/${vehicle!.id}`
+      : `${import.meta.env.VITE_API_URL}/api/vehicles`;
+
+    const method = isEdit ? "PUT" : "POST";
+
     // If validation passes, proceed with submission
-    console.log("Form is valid, submitting:", vehicleDetails);
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/vehicles`,
-      {
-        method: "POST",
+    console.log(`${isEdit ? "Updating" : "Creating"} vehicle:`, vehicleDetails);
+
+    try {
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(vehicleDetails),
-      },
-    );
-    const data = await response.json();
-    console.log("Response data:", data);
+      });
 
-    if (response.status === 200) {
-      navigate("/vehicles");
-    } else {
-      alert("Failed to add vehicle");
+      const data = await response.json();
+      console.log("Response data:", data);
+
+      if (response.ok) {
+        navigate("/vehicles");
+      } else {
+        alert("Failed to save vehicle");
+      }
+    } catch (error) {
+      console.error("Error saving vehicle:", error);
+      alert("An error occurred while saving the vehicle");
     }
   }
 

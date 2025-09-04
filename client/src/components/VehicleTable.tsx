@@ -6,13 +6,17 @@ import {
   TableHead,
   TableRow,
   Button,
+  IconButton,
 } from "@mui/material";
 import { formatDateToDDMMYYYY } from "../app/utils.ts";
 import { useSelector } from "react-redux";
 import type { RootState } from "../app/store.ts";
+import { useNavigate } from "react-router-dom";
+import { EditOutlined } from "@mui/icons-material";
 
 export default function VehicleTable() {
   const vehicles = useSelector((state: RootState) => state.vehicles);
+  const navigate = useNavigate();
   return (
     <TableContainer>
       <Table>
@@ -26,6 +30,7 @@ export default function VehicleTable() {
             <TableCell>Council Plate</TableCell>
             <TableCell>Company</TableCell>
             <TableCell>Status</TableCell>
+            <TableCell>Actions</TableCell>
             <TableCell></TableCell>
           </TableRow>
         </TableHead>
@@ -62,6 +67,13 @@ export default function VehicleTable() {
                 {vehicle.status}
               </TableCell>
               <TableCell>
+                <IconButton
+                  onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}
+                >
+                  <EditOutlined color="primary" />
+                </IconButton>
+              </TableCell>
+              <TableCell>
                 <Button
                   variant="contained"
                   size="small"
@@ -71,6 +83,9 @@ export default function VehicleTable() {
                     textTransform: "none",
                   }}
                   disabled={vehicle.status === "Available" ? false : true}
+                  onClick={() => {
+                    navigate(`/rentals/add/${vehicle.id}`);
+                  }}
                 >
                   Add Rental
                 </Button>

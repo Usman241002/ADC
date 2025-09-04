@@ -73,18 +73,123 @@ export async function createRental(rentalData) {
   }
 }
 
+export async function getRentalById(rentalId) {
+  try {
+    const query = `SELECT * FROM rentals WHERE rental_id = $1`;
+    const result = await pool.query(rentalQuery, [rentalId]);
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    console.error("Error getting rental:", error);
+    throw error;
+  }
+}
+
+export async function updateRentalById(rentalId, newEndDate) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // 1. Get existing rental
+    const rentalQuery = `SELECT * FROM rentals WHERE rental_id = $1`;
+    const rentalResult = await client.query(rentalQuery, [rentalId]);
+
+    if (rentalResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return null; // rental not found
+    }
+
+    const existingRental = rentalResult.rows[0];
+
+    // 2. Update only the end_date
+    const updateQuery = `
+      UPDATE rentals
+      SET end_date = $1
+      WHERE rental_id = $2
+      RETURNING *;
+    `;
+    const updatedRentalResult = await client.query(updateQuery, [
+      newEndDate,
+      rentalId,
+    ]);
+    const updatedRental = updatedRentalResult.rows[0];
+
+    // 3. Delete only future pending payments
+    const today = new Date().toISOString().split("T")[0];
+
+    await client.query(
+      `DELETE FROM payments
+       WHERE rental_id = $1
+         AND due_date >= $2
+         AND status = 'Pending'`,
+      [rentalId, today],
+    );
+
+    // 4. Get the last existing week_no
+    const lastWeekResult = await client.query(
+      `SELECT COALESCE(MAX(week_no), 0) AS last_week_no
+       FROM payments
+       WHERE rental_id = $1`,
+      [rentalId],
+    );
+    let lastWeekNo = parseInt(lastWeekResult.rows[0].last_week_no, 10) || 0;
+
+    // 5. Get vehicle info for recalculation
+    const vehicleQuery = `
+      SELECT v.weekly_rent
+      FROM vehicles v
+      WHERE v.id = $1
+    `;
+    const vehicleResult = await client.query(vehicleQuery, [
+      existingRental.vehicle_id,
+    ]);
+
+    if (vehicleResult.rows.length === 0) {
+      throw new Error("Vehicle not found for recalculation");
+    }
+
+    const weeklyRent = parseFloat(vehicleResult.rows[0].weekly_rent);
+    const dailyRate = weeklyRent / 7;
+
+    // 6. Generate new future payments continuing from last week_no
+    await generateWeeklyPayments(
+      client,
+      rentalId,
+      today,
+      newEndDate,
+      dailyRate,
+      lastWeekNo,
+    );
+
+    await client.query("COMMIT");
+    return updatedRental;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Error updating rental:", error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 async function generateWeeklyPayments(
   client,
   rentalId,
   startDate,
   endDate,
   dailyRate,
+  startWeekNo = 1,
 ) {
   const rentalStartDate = new Date(startDate);
   const rentalEndDate = new Date(endDate);
 
   let currentWeekStart = new Date(rentalStartDate);
-  let weekCounter = 1;
+  let weekCounter = startWeekNo;
 
   while (currentWeekStart <= rentalEndDate) {
     const currentWeekEnd = new Date(currentWeekStart);
@@ -109,7 +214,7 @@ async function generateWeeklyPayments(
     const paymentValues = [
       rentalId,
       weekCounter,
-      currentWeekStart.toISOString().split("T")[0], // Format as YYYY-MM-DD
+      currentWeekStart.toISOString().split("T")[0],
       actualWeekEnd.toISOString().split("T")[0],
       currentWeekStart.toISOString().split("T")[0], // Due at start of week
       proratedAmount,
