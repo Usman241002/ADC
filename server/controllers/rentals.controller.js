@@ -23,8 +23,8 @@ export async function addRental(req, res) {
 
 export async function getRental(req, res) {
   try {
-    const rentalId = req.params.id;
-    const rental = await RentalsModel.getRentalById(rentalId);
+    const rental_id = req.params.rental_id;
+    const rental = await RentalsModel.getRentalById(rental_id);
     res.status(200).json(rental);
   } catch (err) {
     console.error("Error fetching rental:", err);
@@ -34,11 +34,9 @@ export async function getRental(req, res) {
 
 export async function updateRental(req, res) {
   try {
-    const rentalId = req.params.id;
-    const updatedRental = await RentalsModel.updateRentalById(
-      rentalId,
-      req.body,
-    );
+    const rental_id = req.params.rental_id;
+    const data = req.body;
+    const updatedRental = await RentalsModel.updateRentalById(rental_id, data);
     res.status(200).json(updatedRental);
   } catch (err) {
     console.error("Error updating rental:", err);

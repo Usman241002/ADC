@@ -17,6 +17,7 @@ export default function AddVehicleInput({
   adornment = { position: "", adornment: "" },
   handleChange,
   required = true,
+  disabled = false,
 }: {
   size: number;
   name: string;
@@ -27,6 +28,7 @@ export default function AddVehicleInput({
   adornment?: { position: string; adornment: string };
   handleChange: (event: any) => void;
   required?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <Grid size={size}>
@@ -52,6 +54,7 @@ export default function AddVehicleInput({
           }}
           fullWidth
           required={required}
+          disabled={disabled}
         />
       ) : (
         <FormControl fullWidth>

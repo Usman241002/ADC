@@ -1,4 +1,5 @@
 export type rentalDetails = {
+  rental_id: string;
   vehicle_id: string;
   client_id: string;
   start_date: string;

@@ -6,75 +6,64 @@ import {
   Button,
   Stack,
   Typography,
+  CircularProgress,
 } from "@mui/material";
-
-import { useEffect, useState } from "react";
 import AccordionTitle from "../components/AccordionTitle";
+import AddDateVehicleForm from "../components/AddDateVehicleForm";
 import RentalTotal from "../components/RentalTotal";
 import useRentalForm from "../app/hooks/useRentalForm";
-
-import { useNavigate, useParams } from "react-router-dom";
-import AddDateVehicleForm from "../components/AddDateVehicleForm";
+import { useState, useEffect } from "react";
+import type { rentalDetails } from "../app/types/rentals";
+import { useParams } from "react-router-dom";
 
 export default function EditRental() {
+  const { rental_id } = useParams();
   const [expanded, setExpanded] = useState<string | false>("panel1");
   const [completed, setCompleted] = useState({
     panel1: false,
     panel2: false,
+    panel3: false,
   });
+  const [fetchData, setFetchData] = useState<rentalDetails | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const { rental_id } = useParams<{ rental_id?: string }>();
-  const navigate = useNavigate();
-
-  async function fetchRental() {
+  async function fetchRentalData() {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/rentals/${rental_id}`,
       );
       const data = await response.json();
-      console.log(data);
-      const vehicle_id = data.vehicle_id;
-      const client_id = data.client_id;
-      return { vehicle_id, client_id };
-    } catch (error) {
-      console.error(error);
+      console.log("Data being fetched", data);
+      if (data) {
+        setFetchData({
+          ...data,
+          rental_id: rental_id,
+          vehicle_id: data.vehicle_id.toString(),
+          client_id: data.client_id.toString(),
+          start_date: data.start_date,
+          end_date: data.end_date,
+        });
+        console.log(fetchData);
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    if (rental_id) {
-      fetchRental();
-    }
+    fetchRentalData();
   }, [rental_id]);
 
   const {
-    setRentalDetails,
-    rentalDetails,
-    availableVehicles,
     handleVehicleSelection,
     handleRentalChange,
-    vehiclesLoaded,
+    rentalDetails,
+    availableVehicles,
     handleSubmit,
-  } = useRentalForm(selectedClientId, vehicle_id);
+  } = useRentalForm(fetchData?.client_id, fetchData?.vehicle_id, fetchData);
 
-  useEffect(() => {
-    if (vehicle_id && vehiclesLoaded) {
-      const preSelectedVehicle = availableVehicles.find(
-        (vehicle) => vehicle.id.toString() === vehicle_id,
-      );
-
-      if (preSelectedVehicle) {
-        console.log("Vehicle pre-selected successfully");
-      } else {
-        console.warn(
-          `Vehicle with ID ${vehicle_id} not found or not available`,
-        );
-        navigate("/vehicles");
-      }
-    }
-  }, [vehicle_id, availableVehicles, vehiclesLoaded, navigate]);
   const handlePanelChange =
-    (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+    (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
       setExpanded(newExpanded ? panel : false);
     };
 
@@ -82,13 +71,17 @@ export default function EditRental() {
     (vehicle) => vehicle.id.toString() === rentalDetails.vehicle_id,
   );
 
+  if (loading) {
+    return <CircularProgress />;
+  }
+
   return (
     <Stack spacing={3}>
-      <Typography id="title">Edit Rental</Typography>
-
+      <Typography id="title">Edit Reservation</Typography>
       <Stack spacing={4} direction="row" justifyContent="space-between">
         <Box width="65%">
           <Box component="form" onSubmit={handleSubmit}>
+            {/* Panel 1 */}
             <Accordion
               expanded={expanded === "panel1"}
               onChange={handlePanelChange("panel1")}
@@ -108,6 +101,7 @@ export default function EditRental() {
                     handleRentalChange={handleRentalChange}
                     rentalDetails={rentalDetails}
                     availableVehicles={availableVehicles}
+                    editRental={true}
                   />
                   <Box
                     sx={{
@@ -127,7 +121,7 @@ export default function EditRental() {
                           rentalDetails.end_date &&
                           rentalDetails.duration_days
                         ) {
-                          setExpanded("panel2");
+                          setExpanded("panel3");
                           setCompleted((prev) => ({
                             ...prev,
                             panel2: true,
@@ -149,17 +143,18 @@ export default function EditRental() {
               </AccordionDetails>
             </Accordion>
 
+            {/* Panel 3 */}
             <Accordion
-              expanded={expanded === "panel2"}
-              onChange={handlePanelChange("panel2")}
+              expanded={expanded === "panel3"}
+              onChange={handlePanelChange("panel3")}
               disableGutters
-              disabled={!completed.panel1}
+              disabled={!completed.panel1 || !completed.panel2}
             >
               <AccordionSummary>
                 <AccordionTitle
                   title="Documents"
-                  arrow={expanded === "panel2"}
-                  checked={completed.panel2}
+                  arrow={expanded === "panel3"}
+                  checked={completed.panel3}
                 />
               </AccordionSummary>
               <AccordionDetails>
@@ -175,7 +170,7 @@ export default function EditRental() {
                     sx={{ color: "#FFFFFF" }}
                     type="submit"
                   >
-                    Submit Reservation
+                    Update Reservation
                   </Button>
                 </Box>
               </AccordionDetails>

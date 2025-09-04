@@ -17,11 +17,11 @@ rentalsRouter.get("/", getRentals);
 //POST /api/rentals
 rentalsRouter.post("/", addRental);
 
-//GET /api/rentals/:id
-rentalsRouter.get("/:id", getRental);
-
-//PUT /api/rentals/:id
-rentalsRouter.put("/:id", updateRental);
-
 //GET /api/rentals/availableVehicles
 rentalsRouter.get("/availableVehicles", getAvailableVehicles);
+
+//GET /api/rentals/:rental_id
+rentalsRouter.get("/:rental_id", getRental);
+
+//PUT /api/rentals/:rental_id
+rentalsRouter.put("/:rental_id", updateRental);

@@ -5,9 +5,9 @@ type RentalTotal = {
   completed: {
     panel1: boolean;
     panel2: boolean;
-    panel3: boolean;
+    panel3?: boolean;
   };
-  rentalDetails: rentalDetails;
+  rentalDetails: Omit<rentalDetails, "rental_id">;
   selectedVehicle: availableVehicles | undefined;
 };
 
@@ -20,7 +20,7 @@ export default function RentalTotal({
     ? (selectedVehicle.weekly_rent * rentalDetails.duration_days) / 7
     : 0;
 
-  const totalCost = rentalCost + selectedVehicle?.deposit_amount || 0;
+  const totalCost = rentalCost + (selectedVehicle?.deposit_amount || 0);
   return (
     <Paper
       sx={{

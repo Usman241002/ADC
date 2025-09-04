@@ -24,7 +24,9 @@ export default function AddClientForm({
   setRentalDetails,
 }: {
   clientFormData: any;
-  setRentalDetails: React.Dispatch<React.SetStateAction<rentalDetails>>;
+  setRentalDetails: React.Dispatch<
+    React.SetStateAction<Omit<rentalDetails, "rental_id">>
+  >;
 }) {
   const {
     clientInfoVisibility,
