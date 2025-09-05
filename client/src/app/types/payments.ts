@@ -1,5 +1,5 @@
 export type payments = {
-  payment_id: number;
+  payment_id: string;
   client_id: number;
   first_name: string;
   last_name: string;
@@ -13,4 +13,7 @@ export type payments = {
   due_date: string;
   amount_due: number;
   status: string;
+  is_surcharge: boolean;
+  amount_paid: number;
+  phone_number: string;
 };

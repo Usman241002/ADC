@@ -121,10 +121,10 @@ export default function EditRental() {
                           rentalDetails.end_date &&
                           rentalDetails.duration_days
                         ) {
-                          setExpanded("panel3");
+                          setExpanded("panel2");
                           setCompleted((prev) => ({
                             ...prev,
-                            panel2: true,
+                            panel1: true,
                           }));
                         }
                       }}
@@ -145,16 +145,16 @@ export default function EditRental() {
 
             {/* Panel 3 */}
             <Accordion
-              expanded={expanded === "panel3"}
-              onChange={handlePanelChange("panel3")}
+              expanded={expanded === "panel2"}
+              onChange={handlePanelChange("panel2")}
               disableGutters
-              disabled={!completed.panel1 || !completed.panel2}
+              disabled={!completed.panel1}
             >
               <AccordionSummary>
                 <AccordionTitle
                   title="Documents"
-                  arrow={expanded === "panel3"}
-                  checked={completed.panel3}
+                  arrow={expanded === "panel2"}
+                  checked={completed.panel2}
                 />
               </AccordionSummary>
               <AccordionDetails>

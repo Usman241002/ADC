@@ -16,8 +16,25 @@ import {
 import { Link } from "react-router-dom";
 
 import RentalsTable from "../components/RentalsTable";
+import { useDispatch } from "react-redux";
+import { setRentals } from "../features/rentalsSlice";
+import { useEffect } from "react";
 
 export default function Rentals() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    async function fetchRentalsData() {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/rentals`,
+      );
+      const data = await response.json();
+      dispatch(setRentals(data));
+    }
+
+    fetchRentalsData();
+  }, []);
+
   return (
     <Stack spacing={3}>
       <Typography id="title">Rentals</Typography>

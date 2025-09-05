@@ -63,10 +63,70 @@ export async function createRental(rentalData) {
     );
 
     await client.query("COMMIT");
+    await updateRentalStatus(rental_id);
     return { rental_id: rental_id, success: true };
   } catch (error) {
     await client.query("ROLLBACK");
     console.error("Error creating rental:", error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+export async function updateRentalStatus(rental_id) {
+  const client = await pool.connect();
+
+  try {
+    const collectDateQuery = `SELECT rental_id, vehicle_id, start_date, end_date, status FROM rentals WHERE rental_id = $1`;
+    const results = await client.query(collectDateQuery, [rental_id]);
+
+    if (results.rowCount === 0) {
+      throw new Error(`Rental with ID ${rental_id} not found`);
+    }
+
+    const rental = results.rows[0];
+    const today = new Date();
+    const start = new Date(rental.start_date);
+    const end = new Date(rental.end_date);
+
+    // If rental ended but still Active → mark Completed
+    if (end < today && rental.status === "Active") {
+      await client.query(
+        "UPDATE rentals SET status = 'Completed' WHERE rental_id = $1",
+        [rental_id],
+      );
+      await client.query(
+        "UPDATE vehicles SET status = 'Available' WHERE id = $1",
+        [rental.vehicle_id],
+      );
+    }
+    // If rental should be Active today but is still Inactive → mark Active
+    else if (start <= today && end >= today && rental.status === "Inactive") {
+      await client.query(
+        "UPDATE rentals SET status = 'Active' WHERE rental_id = $1",
+        [rental_id],
+      );
+      await client.query(
+        "UPDATE vehicles SET status = 'Reserved' WHERE id = $1",
+        [rental.vehicle_id],
+      );
+    }
+    // If rental hasn’t started yet → mark as Inactive
+    else if (start > today && rental.status !== "Inactive") {
+      await client.query(
+        "UPDATE rentals SET status = 'Inactive' WHERE rental_id = $1",
+        [rental_id],
+      );
+      await client.query(
+        "UPDATE vehicles SET status = 'Available' WHERE id = $1",
+        [rental.vehicle_id],
+      );
+    }
+
+    return { success: true, rental_id };
+  } catch (error) {
+    console.error("Error updating rental status:", error);
     throw error;
   } finally {
     client.release();
@@ -126,14 +186,12 @@ export async function updateRentalById(rental_id, data) {
     ]);
     const updatedRental = updatedRentalResult.rows[0];
 
-    // 3. Delete future pending payments
-    const today = new Date().toISOString().split("T")[0];
+    // 3. Delete ALL existing pending payments for this rental (including deposit)
     await client.query(
       `DELETE FROM payments
        WHERE rental_id = $1
-         AND due_date >= $2
          AND status = 'Pending'`,
-      [rental_id, today],
+      [rental_id],
     );
 
     // 4. Get vehicle info for deposit and weekly payments
@@ -158,12 +216,18 @@ export async function updateRentalById(rental_id, data) {
         due_date, amount_due, status
       ) VALUES ($1, $2, $3, $4, $5, $6, $7)
     `;
+
+    // Set deposit due date to 3 days after start date (consistent with createRental)
+    const startDateObj = new Date(start_date);
+    const depositDueDate = new Date(startDateObj);
+    depositDueDate.setDate(startDateObj.getDate() + 3);
+
     await client.query(depositQuery, [
       rental_id,
       0,
       start_date,
       start_date,
-      start_date, // due on start date
+      depositDueDate.toISOString().split("T")[0], // 3 days after start
       depositAmount,
       "Pending",
     ]);
@@ -179,6 +243,7 @@ export async function updateRentalById(rental_id, data) {
     );
 
     await client.query("COMMIT");
+    await updateRentalStatus(rental_id);
     return updatedRental;
   } catch (error) {
     await client.query("ROLLBACK");

@@ -76,7 +76,12 @@ export default function PaymentsTable() {
                 />
               </TableCell>
               <TableCell align="center">
-                <IconButton color="primary">
+                <IconButton
+                  color="primary"
+                  onClick={() =>
+                    navigate(`/payments/view/${payment.payment_id}`)
+                  }
+                >
                   <Visibility fontSize="small" />
                 </IconButton>
                 <IconButton color="primary">

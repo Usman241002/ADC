@@ -13,11 +13,27 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import VehicleTable from "../components/VehicleTable.tsx";
+import { setVehicles } from "../features/vehiclesSlice.ts";
+import { useEffect } from "react";
 
 export default function Vehicles() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    async function fetchCarData() {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/vehicles`,
+      );
+      const data = await response.json();
+      dispatch(setVehicles(data));
+    }
+
+    fetchCarData();
+  }, [dispatch]);
+
   return (
     <Stack spacing={3}>
       <Typography id="title">Vehicles</Typography>

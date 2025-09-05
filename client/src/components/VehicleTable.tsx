@@ -5,6 +5,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
   Button,
   IconButton,
 } from "@mui/material";
@@ -12,7 +13,7 @@ import { formatDateToDDMMYYYY } from "../app/utils.ts";
 import { useSelector } from "react-redux";
 import type { RootState } from "../app/store.ts";
 import { useNavigate } from "react-router-dom";
-import { EditOutlined } from "@mui/icons-material";
+import { EditOutlined, BuildCircleOutlined } from "@mui/icons-material";
 
 export default function VehicleTable() {
   const vehicles = useSelector((state: RootState) => state.vehicles);
@@ -22,8 +23,7 @@ export default function VehicleTable() {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>VRM</TableCell>
-            <TableCell>Name</TableCell>
+            <TableCell>Vehicle</TableCell>
             <TableCell>Mileage</TableCell>
             <TableCell>MOT</TableCell>
             <TableCell>Road Tax</TableCell>
@@ -36,12 +36,13 @@ export default function VehicleTable() {
         </TableHead>
         <TableBody>
           {vehicles.map((vehicle) => (
-            <TableRow
-              key={vehicle.vrm}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell>{vehicle.vrm}</TableCell>
-              <TableCell>{`${vehicle.make} ${vehicle.model}`}</TableCell>
+            <TableRow>
+              <TableCell>
+                <Typography variant="body1" color="#999999">
+                  {vehicle.vrm}
+                </Typography>
+                <Typography variant="body1">{`${vehicle.make} ${vehicle.model}`}</Typography>
+              </TableCell>
               <TableCell>{vehicle.mileage}</TableCell>
               <TableCell>
                 {formatDateToDDMMYYYY(vehicle.mot_expiry_date)}
@@ -71,6 +72,9 @@ export default function VehicleTable() {
                   onClick={() => navigate(`/vehicles/edit/${vehicle.id}`)}
                 >
                   <EditOutlined color="primary" />
+                </IconButton>
+                <IconButton>
+                  <BuildCircleOutlined color="primary" />
                 </IconButton>
               </TableCell>
               <TableCell>

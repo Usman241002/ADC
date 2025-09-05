@@ -9,19 +9,36 @@ import {
   Typography,
 } from "@mui/material";
 import Input from "../components/Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PaymentsTable from "../components/PaymentsTable";
+import { useDispatch } from "react-redux";
+import { setPayments } from "../features/paymentsSlice";
 
 export default function Payment() {
+  const dispatch = useDispatch();
   const [filter, setFilter] = useState({
     name: "",
     vrm: "",
   });
 
-  function handleFilterChange(event: React.ChangeEvent<HTMLInputElement>) {
+  useEffect(() => {
+    async function fetchPayments() {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/payments`,
+      );
+      const data = await response.json();
+
+      dispatch(setPayments(data));
+    }
+
+    fetchPayments();
+  }, [dispatch]);
+
+  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilter({ ...filter, [event.target.name]: event.target.value });
-  }
+  };
+
   return (
     <Stack spacing={3}>
       <Typography id="title">Payments</Typography>
