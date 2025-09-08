@@ -18,6 +18,24 @@ import { EditOutlined, BuildCircleOutlined } from "@mui/icons-material";
 export default function VehicleTable() {
   const vehicles = useSelector((state: RootState) => state.vehicles);
   const navigate = useNavigate();
+
+  async function handleMaintenanceToggle(id: number, status: string) {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/vehicles/maintenance/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ status }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (response.ok) {
+      window.location.reload();
+    }
+  }
+
   return (
     <TableContainer>
       <Table>
@@ -73,8 +91,20 @@ export default function VehicleTable() {
                 >
                   <EditOutlined color="primary" />
                 </IconButton>
-                <IconButton>
-                  <BuildCircleOutlined color="primary" />
+                <IconButton
+                  onClick={() => {
+                    handleMaintenanceToggle(vehicle.id, vehicle.status);
+                  }}
+                  disabled={vehicle.status === "Reserved"}
+                >
+                  <BuildCircleOutlined
+                    sx={{
+                      color:
+                        vehicle.status === "Reserved"
+                          ? "grey.400"
+                          : "primary.main",
+                    }}
+                  />
                 </IconButton>
               </TableCell>
               <TableCell>

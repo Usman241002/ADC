@@ -115,3 +115,25 @@ export async function vehicleLookup(req, res) {
     });
   }
 }
+
+export async function updateMaintenanceStatus(req, res) {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    const updatedVehicle = VehicleModel.updateMaintenanceById(id, status);
+    await updatedVehicle;
+    res.status(200).json(updatedVehicle);
+  } catch (error) {
+    console.error("Error updating maintenance status:", error);
+  }
+}
+
+export async function getNotifications(req, res) {
+  try {
+    const notifications = await VehicleModel.getVehicleNotifications();
+    res.status(200).json(notifications);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).json({ error: "Failed to update vehicle" });
+  }
+}

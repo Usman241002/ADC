@@ -101,47 +101,47 @@ export async function updateRentalStatus(rental_id) {
     start.setHours(0, 0, 0, 0);
     end.setHours(0, 0, 0, 0);
 
-    // If rental ended but still Active → mark Completed
-    if (end < today && rental.status === "Active") {
-      await sql`
-        UPDATE rentals
-        SET status = 'Completed'
-        WHERE rental_id = ${rental_id}
-      `;
-      await sql`
-        UPDATE vehicles
-        SET status = 'Available'
-        WHERE id = ${rental.vehicle_id}
-      `;
-    }
-    // If rental should be Active today but is still Inactive → mark Active
-    else if (start <= today && end >= today && rental.status === "Inactive") {
-      await sql`
-        UPDATE rentals
-        SET status = 'Active'
-        WHERE rental_id = ${rental_id}
-      `;
-      await sql`
-        UPDATE vehicles
-        SET status = 'Reserved'
-        WHERE id = ${rental.vehicle_id}
-      `;
-    }
-    // If rental hasn't started yet → mark as Inactive
-    else if (start > today && rental.status !== "Inactive") {
-      await sql`
-        UPDATE rentals
-        SET status = 'Inactive'
-        WHERE rental_id = ${rental_id}
-      `;
-      await sql`
-        UPDATE vehicles
-        SET status = 'Available'
-        WHERE id = ${rental.vehicle_id}
-      `;
+    let newRentalStatus = rental.status;
+    let newVehicleStatus = null;
+
+    // Determine the correct rental status based on dates
+    if (end < today) {
+      // Rental has ended
+      newRentalStatus = "Completed";
+      newVehicleStatus = "Available";
+    } else if (start <= today && today <= end) {
+      // Rental is currently active (today is within rental period)
+      newRentalStatus = "Active";
+      newVehicleStatus = "Reserved";
+    } else if (start > today) {
+      // Rental hasn't started yet
+      newRentalStatus = "Inactive";
+      newVehicleStatus = "Available";
     }
 
-    return { success: true, rental_id };
+    // Only update if status actually changed
+    if (newRentalStatus !== rental.status) {
+      await sql`
+        UPDATE rentals
+        SET status = ${newRentalStatus}
+        WHERE rental_id = ${rental_id}
+      `;
+
+      if (newVehicleStatus) {
+        await sql`
+          UPDATE vehicles
+          SET status = ${newVehicleStatus}
+          WHERE id = ${rental.vehicle_id}
+        `;
+      }
+    }
+
+    return {
+      success: true,
+      rental_id,
+      old_status: rental.status,
+      new_status: newRentalStatus,
+    };
   } catch (error) {
     console.error("Error updating rental status:", error);
     throw error;
@@ -195,14 +195,15 @@ export async function updateRentalById(rental_id, data) {
     `;
     const updatedRental = updatedRentalResult[0];
 
-    // 3. Delete ALL existing pending payments for this rental (including deposit)
-    await sql`
-      DELETE FROM payments
+    // 3. Get existing payments to determine what to keep/regenerate
+    const existingPayments = await sql`
+      SELECT week_no, status, start_date, end_date, amount_due
+      FROM payments
       WHERE rental_id = ${rental_id}
-        AND status = 'Pending'
+      ORDER BY week_no
     `;
 
-    // 4. Get vehicle info for deposit and weekly payments
+    // 4. Get vehicle info for calculations
     const vehicleResult = await sql`
       SELECT v.weekly_rent, t.deposit_amount
       FROM vehicles v
@@ -218,20 +219,90 @@ export async function updateRentalById(rental_id, data) {
     const dailyRate = weeklyRent / 7;
     const depositAmount = parseFloat(vehicleResult[0].deposit_amount);
 
-    // 5. Insert deposit as week 0
-    const startDateObj = new Date(start_date);
-    const depositDueDate = new Date(startDateObj);
-    depositDueDate.setDate(startDateObj.getDate() + 3);
+    // 5. Handle deposit (week 0) - only if it doesn't exist or is pending
+    const depositPayment = existingPayments.find((p) => p.week_no === 0);
 
+    if (!depositPayment) {
+      // No deposit exists, create one
+      const startDateObj = new Date(start_date);
+      const depositDueDate = new Date(startDateObj);
+      depositDueDate.setDate(startDateObj.getDate() + 3);
+
+      await sql`
+        INSERT INTO payments (
+          rental_id, week_no, start_date, end_date,
+          due_date, amount_due, status
+        ) VALUES (${rental_id}, 0, ${start_date}, ${start_date}, ${depositDueDate.toISOString().split("T")[0]}, ${depositAmount}, 'Pending')
+      `;
+    } else if (depositPayment.status === "Pending") {
+      // Update existing pending deposit if amount changed
+      const startDateObj = new Date(start_date);
+      const depositDueDate = new Date(startDateObj);
+      depositDueDate.setDate(startDateObj.getDate() + 3);
+
+      await sql`
+        UPDATE payments
+        SET start_date = ${start_date},
+            end_date = ${start_date},
+            due_date = ${depositDueDate.toISOString().split("T")[0]},
+            amount_due = ${depositAmount}
+        WHERE rental_id = ${rental_id} AND week_no = 0
+      `;
+    }
+    // If deposit is paid, leave it alone
+
+    // 6. Delete only pending weekly payments (week_no > 0)
     await sql`
-      INSERT INTO payments (
-        rental_id, week_no, start_date, end_date,
-        due_date, amount_due, status
-      ) VALUES (${rental_id}, 0, ${start_date}, ${start_date}, ${depositDueDate.toISOString().split("T")[0]}, ${depositAmount}, 'Pending')
+      DELETE FROM payments
+      WHERE rental_id = ${rental_id}
+        AND week_no > 0
+        AND status = 'Pending'
     `;
 
-    // 6. Generate weekly payments starting from start_date, week 1
-    await generateWeeklyPayments(rental_id, start_date, end_date, dailyRate, 1);
+    // 7. Find the highest paid week number to determine where to start regenerating
+    const paidPayments = existingPayments.filter(
+      (p) => p.status === "Paid" && p.week_no > 0,
+    );
+    const lastPaidWeek =
+      paidPayments.length > 0
+        ? Math.max(...paidPayments.map((p) => p.week_no))
+        : 0;
+
+    // 8. Generate weekly payments starting from the week after the last paid week
+    const startWeekNo = lastPaidWeek + 1;
+
+    // Calculate the start date for new payments
+    let paymentStartDate;
+    if (lastPaidWeek === 0) {
+      // No paid weekly payments, start from rental start date
+      paymentStartDate = start_date;
+    } else {
+      // Find the end date of the last paid payment and start the day after
+      const lastPaidPayment = paidPayments.find(
+        (p) => p.week_no === lastPaidWeek,
+      );
+      if (lastPaidPayment) {
+        const lastPaidEndDate = new Date(lastPaidPayment.end_date);
+        lastPaidEndDate.setDate(lastPaidEndDate.getDate() + 1);
+        paymentStartDate = lastPaidEndDate.toISOString().split("T")[0];
+      } else {
+        paymentStartDate = start_date;
+      }
+    }
+
+    // Only generate payments if there's time remaining in the rental
+    const paymentStart = new Date(paymentStartDate);
+    const rentalEnd = new Date(end_date);
+
+    if (paymentStart <= rentalEnd) {
+      await generateWeeklyPayments(
+        rental_id,
+        paymentStartDate,
+        end_date,
+        dailyRate,
+        startWeekNo,
+      );
+    }
 
     await updateRentalStatus(rental_id);
     return updatedRental;
@@ -318,6 +389,21 @@ export async function getAllAvailableVehicles() {
     return results;
   } catch (error) {
     console.error("Error fetching available vehicles:", error);
+    throw error;
+  }
+}
+
+export async function updateAllRentals() {
+  try {
+    const updatableRentals = await sql`SELECT rental_id
+          FROM rentals
+          WHERE status IN ('Active', 'Inactive')`;
+
+    for (const rental of updatableRentals) {
+      const result = await updateRentalStatus(rental.rental_id);
+    }
+  } catch (error) {
+    console.error("Error updating all rentals:", error);
     throw error;
   }
 }

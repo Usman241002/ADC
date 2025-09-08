@@ -28,6 +28,7 @@ export default function Payment() {
         `${import.meta.env.VITE_API_URL}/api/payments`,
       );
       const data = await response.json();
+      console.log(data);
 
       dispatch(setPayments(data));
     }

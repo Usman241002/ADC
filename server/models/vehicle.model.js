@@ -195,3 +195,64 @@ export async function addVehicleDetails(vehicleData) {
     throw new Error("Error adding vehicle with plates: " + err.message);
   }
 }
+
+export async function updateMaintenanceById(id, status) {
+  try {
+    const results =
+      status == "Available"
+        ? await sql`UPDATE vehicles SET status = 'Maintenance' WHERE id = ${id} AND status = ${status}`
+        : await sql`UPDATE vehicles SET status = 'Available' WHERE id = ${id} AND status = ${status}`;
+
+    return results;
+  } catch (err) {
+    console.error("Error updating vehicle status:", err);
+    throw new Error("Error updating vehicle status: " + err.message);
+  }
+}
+
+export async function getVehicleNotifications() {
+  const notifications = {};
+  try {
+    notifications.mot = await checkVehicleMOT();
+    notifications.tax = await checkVehicleTax();
+    notifications.plate = await checkVehiclePlates();
+    console.log(notifications);
+    return notifications;
+  } catch (err) {
+    console.error("Error getting vehicle notifications:", err);
+    throw new Error("Error getting vehicle notifications: " + err.message);
+  }
+}
+
+export async function checkVehicleMOT() {
+  try {
+    const results =
+      await sql`SELECT id, vrm, mot_expiry_date from vehicles WHERE mot_expiry_date <= CURRENT_DATE + 31`;
+    return results;
+  } catch (err) {
+    console.error("Error checking vehicle MOT:", err);
+    throw new Error("Error checking vehicle MOT: " + err.message);
+  }
+}
+
+export async function checkVehicleTax() {
+  try {
+    const results =
+      await sql`SELECT id, vrm, road_tax_expiry_date from vehicles WHERE road_tax_expiry_date <= CURRENT_DATE + 31`;
+    return results;
+  } catch (err) {
+    console.error("Error checking vehicle tax:", err);
+    throw new Error("Error checking vehicle tax: " + err.message);
+  }
+}
+
+export async function checkVehiclePlates() {
+  try {
+    const results =
+      await sql`SELECT v.id, v.vrm, c.city, c.renewal_date FROM vehicles v JOIN council_plates c ON v.id = c.vehicle_id WHERE c.renewal_date <= CURRENT_DATE + 31`;
+    return results;
+  } catch (err) {
+    console.error("Error checking vehicle plates:", err);
+    throw new Error("Error checking vehicle plates: " + err.message);
+  }
+}

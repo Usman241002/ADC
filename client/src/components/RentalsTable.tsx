@@ -26,7 +26,6 @@ export default function RentalsTable() {
       <Table>
         <TableHead>
           <TableRow key="header">
-            <TableCell>ID</TableCell>
             <TableCell>Info</TableCell>
             <TableCell>Status</TableCell>
             <TableCell>Start</TableCell>
@@ -41,7 +40,6 @@ export default function RentalsTable() {
         <TableBody>
           {rentals.map((rental) => (
             <TableRow key={rental.rental_id}>
-              <TableCell>{rental.rental_id}</TableCell>
               <TableCell>
                 <Typography variant="body1" color="#999999">
                   Created:

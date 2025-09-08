@@ -1,8 +1,8 @@
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Layout from "./components/Layout";
 
+import Layout from "./components/Layout";
 import AddRental from "./pages/AddRental";
 import AddVehicle from "./pages/AddVehicle";
 import Admin from "./pages/Admin";

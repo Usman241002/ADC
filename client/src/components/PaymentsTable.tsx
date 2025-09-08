@@ -23,7 +23,6 @@ export default function PaymentsTable() {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Payment ID</TableCell>
             <TableCell>Driver</TableCell>
             <TableCell>Hire Period</TableCell>
 
@@ -40,7 +39,6 @@ export default function PaymentsTable() {
         <TableBody>
           {payments.map((payment) => (
             <TableRow key={payment.payment_id}>
-              <TableCell>{payment.payment_id}</TableCell>
               <TableCell>
                 {`${payment.first_name} ${payment.last_name}`}
               </TableCell>
@@ -55,7 +53,11 @@ export default function PaymentsTable() {
                 <Typography variant="body1">{`${payment.make} ${payment.model}`}</Typography>
               </TableCell>
               <TableCell>
-                {payment.week_no === 0 ? "Deposit" : "Rent"}
+                {payment.is_surcharge
+                  ? "Surcharge"
+                  : payment.week_no === 0
+                    ? "Deposit"
+                    : "Rent"}
               </TableCell>
               <TableCell>{payment.week_no}</TableCell>
               <TableCell>{formatDateToDDMMYYYY(payment.due_date)}</TableCell>

@@ -81,7 +81,6 @@ export default function EditRental() {
       <Stack spacing={4} direction="row" justifyContent="space-between">
         <Box width="65%">
           <Box component="form" onSubmit={handleSubmit}>
-            {/* Panel 1 */}
             <Accordion
               expanded={expanded === "panel1"}
               onChange={handlePanelChange("panel1")}
@@ -143,7 +142,6 @@ export default function EditRental() {
               </AccordionDetails>
             </Accordion>
 
-            {/* Panel 3 */}
             <Accordion
               expanded={expanded === "panel2"}
               onChange={handlePanelChange("panel2")}
