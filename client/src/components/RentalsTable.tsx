@@ -16,10 +16,45 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../app/store";
 import DatePreview from "../components/DatePreview";
 import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 
-export default function RentalsTable() {
+interface RentalsTableProps {
+  searchTerm: string;
+}
+
+export default function RentalsTable({ searchTerm }: RentalsTableProps) {
   const rentals = useSelector((state: RootState) => state.rentals);
   const navigate = useNavigate();
+
+  // Filter rentals based on search term
+  const filteredRentals = useMemo(() => {
+    if (!searchTerm) return rentals;
+
+    return rentals.filter((rental) => {
+      const searchLower = searchTerm.toLowerCase();
+
+      // Search in VRM
+      if (rental.vehicle_vrm.toLowerCase().includes(searchLower)) return true;
+
+      // Search in Vehicle (make + model)
+      const vehicleName =
+        `${rental.vehicle_make} ${rental.vehicle_model}`.toLowerCase();
+      if (vehicleName.includes(searchLower)) return true;
+
+      // Search in Customer name
+      const customerName =
+        `${rental.customer_first_name} ${rental.customer_last_name}`.toLowerCase();
+      if (customerName.includes(searchLower)) return true;
+
+      // Search in Company
+      if (rental.company.toLowerCase().includes(searchLower)) return true;
+
+      // Search in rental status
+      if (rental.rental_status.toLowerCase().includes(searchLower)) return true;
+
+      return false;
+    });
+  }, [rentals, searchTerm]);
 
   return (
     <TableContainer>
@@ -38,7 +73,7 @@ export default function RentalsTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rentals.map((rental) => (
+          {filteredRentals.map((rental) => (
             <TableRow key={rental.rental_id}>
               <TableCell>
                 <Typography variant="body1" color="#999999">
@@ -63,7 +98,6 @@ export default function RentalsTable() {
               <TableCell>
                 <DatePreview date={rental.end_date} time={"10:00"} />
               </TableCell>
-
               <TableCell>
                 <Typography variant="body1" color="#999999">
                   {rental.vehicle_vrm}

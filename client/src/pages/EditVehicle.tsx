@@ -32,8 +32,6 @@ export default function EditVehicle() {
       setVehicle(data);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -50,6 +48,7 @@ export default function EditVehicle() {
     addNewCouncilPlate,
     removeCouncilPlate,
     handleSubmit,
+    handleDeleteVehicle,
     handleSearch,
   } = useVehicleForm({ vehicle });
   return (
@@ -145,6 +144,14 @@ export default function EditVehicle() {
                 type="Date"
                 handleChange={handleChange}
               />
+              <Input
+                size={4}
+                label="ADC Renewal Expiry"
+                name="renewal_expiry_date"
+                value={vehicleDetails.renewal_expiry_date}
+                type="Date"
+                handleChange={handleChange}
+              />
             </Grid>
           </AccordionDetails>
         </Accordion>
@@ -224,14 +231,28 @@ export default function EditVehicle() {
                 adornment={{ position: "start", adornment: "£" }}
               />
 
-              <Grid size={6}></Grid>
-              <Grid size={4}>
+              <Grid
+                size={4}
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
                 <Button
                   type="submit"
                   variant="contained"
                   sx={{ backgroundColor: "primary.main", color: "#FFFFFF" }}
                 >
                   Update Vehicle
+                </Button>
+                <Button
+                  onClick={handleDeleteVehicle}
+                  variant="contained"
+                  sx={{ backgroundColor: "error.main", color: "#FFFFFF" }}
+                >
+                  Delete Vehicle
                 </Button>
               </Grid>
             </Grid>

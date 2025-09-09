@@ -21,6 +21,8 @@ export default function Payment() {
     name: "",
     vrm: "",
   });
+  const [driverOptions, setDriverOptions] = useState<string[]>([]);
+  const [vrmOptions, setVRMOptions] = useState<string[]>([]);
 
   useEffect(() => {
     async function fetchPayments() {
@@ -31,8 +33,23 @@ export default function Payment() {
       console.log(data);
 
       dispatch(setPayments(data));
-    }
 
+      // Extract unique driver names and VRMs
+      const drivers = Array.from(
+        new Set(
+          data.map(
+            (payment: string) => payment.first_name + " " + payment.last_name,
+          ),
+        ),
+      ).filter(Boolean); // remove null/undefined
+
+      const vrms = Array.from(
+        new Set(data.map((payment: string) => payment.vrm)),
+      ).filter(Boolean);
+
+      setDriverOptions(drivers);
+      setVRMOptions(vrms);
+    }
     fetchPayments();
   }, [dispatch]);
 
@@ -43,7 +60,6 @@ export default function Payment() {
   return (
     <Stack spacing={3}>
       <Typography id="title">Payments</Typography>
-
       <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
         <CardContent>
           <Stack
@@ -67,7 +83,7 @@ export default function Payment() {
                   label="Driver Name"
                   value={filter.name}
                   type="select"
-                  options={["Driver1", "Driver2", "Driver3"]}
+                  options={driverOptions}
                   handleChange={handleFilterChange}
                 />
                 <Input
@@ -76,7 +92,7 @@ export default function Payment() {
                   label="Registration"
                   value={filter.vrm}
                   type="select"
-                  options={["VRM1", "VRM2", "VRM3"]}
+                  options={vrmOptions}
                   handleChange={handleFilterChange}
                 />
               </Grid>
@@ -111,10 +127,9 @@ export default function Payment() {
               </Button>
             </Stack>
           </Stack>
-
-          {/*Add Filtering */}
+          {/* Add Filtering */}
           <Stack sx={{ px: 1 }}>
-            <PaymentsTable />
+            <PaymentsTable filter={filter} />
           </Stack>
         </CardContent>
       </Card>

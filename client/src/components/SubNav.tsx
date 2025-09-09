@@ -7,6 +7,8 @@ import {
   AdminPanelSettingsOutlined,
 } from "@mui/icons-material";
 import { NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../app/store";
 
 export default function SubNav() {
   const subNavItems = [
@@ -16,6 +18,13 @@ export default function SubNav() {
     { text: "payments", icon: PaymentsOutlined },
     { text: "admin", icon: AdminPanelSettingsOutlined },
   ];
+
+  const role = useSelector((state: RootState) => state.users.user?.role);
+
+  // filter items based on role
+  const visibleNavItems = subNavItems.filter(
+    (item) => item.text !== "admin" || role === "admin",
+  );
 
   return (
     <AppBar
@@ -31,7 +40,7 @@ export default function SubNav() {
           direction="row"
           sx={{ justifyContent: "start", alignItems: "center" }}
         >
-          {subNavItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <Box
               key={item.text}
               component={NavLink}

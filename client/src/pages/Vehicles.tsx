@@ -1,8 +1,4 @@
-import {
-  FileUploadOutlined,
-  SearchOutlined,
-  TuneOutlined,
-} from "@mui/icons-material";
+import { FileUploadOutlined, SearchOutlined } from "@mui/icons-material";
 import {
   Button,
   Card,
@@ -17,10 +13,11 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import VehicleTable from "../components/VehicleTable.tsx";
 import { setVehicles } from "../features/vehiclesSlice.ts";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Vehicles() {
   const dispatch = useDispatch();
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function fetchCarData() {
@@ -30,14 +27,12 @@ export default function Vehicles() {
       const data = await response.json();
       dispatch(setVehicles(data));
     }
-
     fetchCarData();
   }, [dispatch]);
 
   return (
     <Stack spacing={3}>
       <Typography id="title">Vehicles</Typography>
-
       <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
         <CardContent>
           <Stack
@@ -55,6 +50,8 @@ export default function Vehicles() {
                 size="small"
                 variant="outlined"
                 placeholder="Search by VRM, Vehicle or Location"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 sx={{ width: "22rem", fontSize: "0.875rem" }}
                 slotProps={{
                   input: {
@@ -77,18 +74,6 @@ export default function Vehicles() {
                   gap: 1,
                 }}
               >
-                <TuneOutlined sx={{ color: "#999999" }} />
-                Filters
-              </Button>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: "#FFFFFF",
-                  color: "#999999",
-                  textTransform: "none",
-                  gap: 1,
-                }}
-              >
                 <FileUploadOutlined sx={{ color: "#999999" }} />
                 Export
               </Button>
@@ -101,34 +86,19 @@ export default function Vehicles() {
                   display: "flex",
                   fontSize: "1rem",
                   textTransform: "none",
-                  backgroundColor: "success.main",
+                  backgroundColor: "primary.main",
                   color: "#FFFFFF",
                   textAlign: "center",
                 }}
               >
                 Add Vehicle
               </Button>
-              <Button
-                variant="contained"
-                size="medium"
-                sx={{
-                  display: "flex",
-                  fontSize: "1rem",
-                  textTransform: "none",
-                  backgroundColor: "error.main",
-                  color: "#FFFFFF",
-                  textAlign: "center",
-                }}
-              >
-                Remove Vehicle
-              </Button>
             </Stack>
           </Stack>
-
           {/*Add Filtering */}
           <Stack spacing={1} sx={{ px: 1, marginTop: 2 }}>
             <Typography id="title">List of Vehicles</Typography>
-            <VehicleTable />
+            <VehicleTable searchTerm={searchTerm} />
           </Stack>
         </CardContent>
       </Card>

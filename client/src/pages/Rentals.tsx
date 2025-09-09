@@ -8,20 +8,16 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import {
-  FileUploadOutlined,
-  SearchOutlined,
-  TuneOutlined,
-} from "@mui/icons-material";
+import { FileUploadOutlined, SearchOutlined } from "@mui/icons-material";
 import { Link } from "react-router-dom";
-
 import RentalsTable from "../components/RentalsTable";
 import { useDispatch } from "react-redux";
 import { setRentals } from "../features/rentalsSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Rentals() {
   const dispatch = useDispatch();
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function fetchRentalsData() {
@@ -31,9 +27,8 @@ export default function Rentals() {
       const data = await response.json();
       dispatch(setRentals(data));
     }
-
     fetchRentalsData();
-  }, []);
+  }, [dispatch]);
 
   return (
     <Stack spacing={3}>
@@ -57,7 +52,9 @@ export default function Rentals() {
               <TextField
                 size="small"
                 variant="outlined"
-                placeholder="Search by VRM, Vehicle or Location"
+                placeholder="Search by VRM, Vehicle or Customer"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 sx={{ width: "22rem", fontSize: "0.875rem" }}
                 slotProps={{
                   input: {
@@ -71,18 +68,6 @@ export default function Rentals() {
               />
             </Toolbar>
             <Stack spacing={4} direction="row" width="75%" justifyContent="end">
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: "#FFFFFF",
-                  color: "#999999",
-                  textTransform: "none",
-                  gap: 1,
-                }}
-              >
-                <TuneOutlined sx={{ color: "#999999" }} />
-                Filters
-              </Button>
               <Button
                 variant="contained"
                 sx={{
@@ -112,10 +97,9 @@ export default function Rentals() {
               </Button>
             </Stack>
           </Stack>
-
           {/*Add Filtering */}
           <Stack sx={{ px: 1 }}>
-            <RentalsTable />
+            <RentalsTable searchTerm={searchTerm} />
           </Stack>
         </CardContent>
       </Card>

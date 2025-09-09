@@ -6,6 +6,7 @@ import { usersRouter } from "./routes/users.route.js";
 import { rentalsRouter } from "./routes/rentals.route.js";
 import { clientsRouter } from "./routes/clients.route.js";
 import { paymentsRouter } from "./routes/payments.route.js";
+import { sendTestEmail } from "./utils/email.js";
 
 dotenv.config();
 
@@ -25,3 +26,5 @@ app.use("/api/payments", paymentsRouter);
 const PORT = 8000;
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+await sendTestEmail("ukhalid428@gmail.com");

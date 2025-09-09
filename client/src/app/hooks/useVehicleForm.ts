@@ -18,6 +18,7 @@ export function useVehicleForm({
     mileage: 0,
     mot_expiry_date: "",
     road_tax_expiry_date: "",
+    renewal_expiry_date: "",
     council_plates: [{ city: "", plate_number: "", renewal_date: "" }],
     company: "",
     weekly_rent: 0,
@@ -35,6 +36,8 @@ export function useVehicleForm({
         mot_expiry_date: formatDateToYYYYMMDD(vehicle.mot_expiry_date) || "",
         road_tax_expiry_date:
           formatDateToYYYYMMDD(vehicle.road_tax_expiry_date) || "",
+        renewal_expiry_date:
+          formatDateToYYYYMMDD(vehicle.renewal_expiry_date) || "",
         council_plates:
           vehicle.council_plates?.length > 0
             ? vehicle.council_plates
@@ -198,6 +201,31 @@ export function useVehicleForm({
     }
   }
 
+  async function handleDeleteVehicle() {
+    if (!vehicle) return;
+
+    const url = `${import.meta.env.VITE_API_URL}/api/vehicles/${vehicle.id}`;
+    const method = "DELETE";
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        navigate("/vehicles");
+      } else {
+        alert("Failed to delete vehicle");
+      }
+    } catch (error) {
+      console.error("Error deleting vehicle:", error);
+      alert("An error occurred while deleting the vehicle");
+    }
+  }
+
   return {
     expanded,
     vehicleDetails,
@@ -207,6 +235,7 @@ export function useVehicleForm({
     addNewCouncilPlate,
     removeCouncilPlate,
     handleSubmit,
+    handleDeleteVehicle,
     handleSearch,
   };
 }

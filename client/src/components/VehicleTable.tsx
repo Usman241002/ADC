@@ -14,10 +14,38 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../app/store.ts";
 import { useNavigate } from "react-router-dom";
 import { EditOutlined, BuildCircleOutlined } from "@mui/icons-material";
+import { useMemo } from "react";
 
-export default function VehicleTable() {
+interface VehicleTableProps {
+  searchTerm: string;
+}
+
+export default function VehicleTable({ searchTerm }: VehicleTableProps) {
   const vehicles = useSelector((state: RootState) => state.vehicles);
   const navigate = useNavigate();
+
+  const filteredVehicles = useMemo(() => {
+    if (!searchTerm) return vehicles;
+
+    return vehicles.filter((vehicle) => {
+      const searchLower = searchTerm.toLowerCase();
+
+      if (vehicle.vrm.toLowerCase().includes(searchLower)) return true;
+
+      const vehicleName = `${vehicle.make} ${vehicle.model}`.toLowerCase();
+      if (vehicleName.includes(searchLower)) return true;
+
+      const locations =
+        vehicle.council_plates
+          ?.map((plate) => plate.city.toLowerCase())
+          .join(" ") || "";
+      if (locations.includes(searchLower)) return true;
+
+      if (vehicle.company.toLowerCase().includes(searchLower)) return true;
+
+      return false;
+    });
+  }, [vehicles, searchTerm]);
 
   async function handleMaintenanceToggle(id: number, status: string) {
     const response = await fetch(
@@ -53,8 +81,8 @@ export default function VehicleTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {vehicles.map((vehicle) => (
-            <TableRow>
+          {filteredVehicles.map((vehicle) => (
+            <TableRow key={vehicle.id}>
               <TableCell>
                 <Typography variant="body1" color="#999999">
                   {vehicle.vrm}

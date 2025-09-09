@@ -8,6 +8,7 @@ import {
   updateVehicle,
   updateMaintenanceStatus,
   getNotifications,
+  deleteVehicle,
 } from "../controllers/vehicles.controller.js";
 
 export const vehiclesRouter = express.Router();
@@ -32,3 +33,6 @@ vehiclesRouter.get("/:id", getVehicleById);
 
 // PUT /api/vehicles/:id
 vehiclesRouter.put("/:id", updateVehicle);
+
+// DELETE /api/vehicles/:id
+vehiclesRouter.delete("/:id", deleteVehicle);

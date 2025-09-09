@@ -1,6 +1,7 @@
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import type { RootState } from "./app/store";
 
 import Layout from "./components/Layout";
 import AddRental from "./pages/AddRental";
@@ -13,6 +14,8 @@ import EditVehicle from "./pages/EditVehicle";
 import Payments from "./pages/Payments";
 import Rentals from "./pages/Rentals";
 import Vehicles from "./pages/Vehicles";
+import Login from "./pages/Login";
+import { useSelector } from "react-redux";
 
 export default function App() {
   const theme = createTheme({
@@ -47,25 +50,34 @@ export default function App() {
     },
   });
 
+  const isLoggedIn = useSelector((state: RootState) => state.users.isLoggedIn);
+  const role = useSelector((state: RootState) => state.users.user?.role);
+
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/vehicles" element={<Vehicles />} />
-            <Route path="/vehicles/add" element={<AddVehicle />} />
-            <Route path="/vehicles/edit/:id" element={<EditVehicle />} />
-            <Route path="/rentals" element={<Rentals />} />
-            <Route path="/rentals/add/:vehicle_id?" element={<AddRental />} />
-            <Route path="/rentals/edit/:rental_id" element={<EditRental />} />
-            <Route path="/payments" element={<Payments />} />
-            <Route
-              path="/payments/edit/:payment_id"
-              element={<EditPayment />}
-            />
-            <Route path="/admin" element={<Admin />} />
-          </Route>
+          {isLoggedIn ? (
+            <Route element={<Layout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/vehicles" element={<Vehicles />} />
+              <Route path="/vehicles/add" element={<AddVehicle />} />
+              <Route path="/vehicles/edit/:id" element={<EditVehicle />} />
+              <Route path="/rentals" element={<Rentals />} />
+              <Route path="/rentals/add/:vehicle_id?" element={<AddRental />} />
+              <Route path="/rentals/edit/:rental_id" element={<EditRental />} />
+              <Route path="/payments" element={<Payments />} />
+              <Route
+                path="/payments/edit/:payment_id"
+                element={<EditPayment />}
+              />
+              {isLoggedIn && role === "admin" && (
+                <Route path="/admin" element={<Admin />} />
+              )}
+            </Route>
+          ) : (
+            <Route index element={<Login />} />
+          )}
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

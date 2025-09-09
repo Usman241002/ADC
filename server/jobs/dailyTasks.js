@@ -3,8 +3,8 @@ import { updateAllRentals } from "../models/rentals.model.js";
 import { applySurcharges } from "../models/payments.model.js";
 import { getVehicleNotifications } from "../models/vehicle.model.js";
 
-cron.schedule("0 0 * * *", async () => {
-  console.log("Running daily job at midnight...");
+cron.schedule("0 7 * * *", async () => {
+  console.log("Running daily job at 7:00am...");
   try {
     await updateAllRentals();
     await applySurcharges();

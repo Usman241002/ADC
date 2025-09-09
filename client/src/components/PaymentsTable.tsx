@@ -10,14 +10,41 @@ import {
   Typography,
 } from "@mui/material";
 import { formatDateToDDMMYYYY } from "../app/utils.ts";
-
 import { useSelector } from "react-redux";
 import type { RootState } from "../app/store";
 import { Visibility, Download, Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-export default function PaymentsTable() {
+import { useMemo } from "react";
+
+interface PaymentsTableProps {
+  filter: {
+    name: string;
+    vrm: string;
+  };
+}
+
+export default function PaymentsTable({ filter }: PaymentsTableProps) {
   const payments = useSelector((state: RootState) => state.payments);
   const navigate = useNavigate();
+
+  // Filter payments based on filter criteria
+  const filteredPayments = useMemo(() => {
+    return payments.filter((payment) => {
+      // Filter by driver name - exact match since we're using actual names
+      if (filter.name) {
+        const driverName = `${payment.first_name} ${payment.last_name}`;
+        if (driverName !== filter.name) return false;
+      }
+
+      // Filter by VRM - exact match since we're using actual VRMs
+      if (filter.vrm) {
+        if (payment.vrm !== filter.vrm) return false;
+      }
+
+      return true;
+    });
+  }, [payments, filter]);
+
   return (
     <TableContainer>
       <Table>
@@ -25,7 +52,6 @@ export default function PaymentsTable() {
           <TableRow>
             <TableCell>Driver</TableCell>
             <TableCell>Hire Period</TableCell>
-
             <TableCell>Vehicle</TableCell>
             <TableCell>Payment Type</TableCell>
             <TableCell>Week No</TableCell>
@@ -35,9 +61,8 @@ export default function PaymentsTable() {
             <TableCell align="center">Actions</TableCell>
           </TableRow>
         </TableHead>
-
         <TableBody>
-          {payments.map((payment) => (
+          {filteredPayments.map((payment) => (
             <TableRow key={payment.payment_id}>
               <TableCell>
                 {`${payment.first_name} ${payment.last_name}`}

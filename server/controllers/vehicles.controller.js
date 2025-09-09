@@ -137,3 +137,14 @@ export async function getNotifications(req, res) {
     res.status(500).json({ error: "Failed to update vehicle" });
   }
 }
+
+export async function deleteVehicle(req, res) {
+  const { id } = req.params;
+  try {
+    const deletedVehicle = await VehicleModel.deleteVehicleById(id);
+    res.status(200).json(deletedVehicle);
+  } catch (error) {
+    console.error("Error deleting vehicle:", error);
+    res.status(500).json({ error: "Failed to delete vehicle" });
+  }
+}

@@ -11,6 +11,7 @@ export async function getAllVehicles() {
           v.mileage,
           v.mot_expiry_date,
           v.road_tax_expiry_date,
+          v.renewal_expiry_date,
           v.company,
           v.weekly_rent,
           v.status,
@@ -29,7 +30,7 @@ export async function getAllVehicles() {
       FROM vehicles v
       LEFT JOIN council_plates cp ON v.id = cp.vehicle_id
       GROUP BY v.id
-      ORDER BY v.id ASC
+      ORDER BY v.status ASC, v.id ASC
     `;
     return results;
   } catch (error) {
@@ -49,6 +50,7 @@ export async function getVehicleById(id) {
         v.mileage,
         v.mot_expiry_date,
         v.road_tax_expiry_date,
+        v.renewal_expiry_date,
         v.company,
         v.weekly_rent,
         v.status,
@@ -85,6 +87,7 @@ export async function updateVehicleById(id, vehicleData) {
     mileage,
     mot_expiry_date,
     road_tax_expiry_date,
+    renewal_expiry_date,
     council_plates,
     company,
     weekly_rent,
@@ -104,6 +107,7 @@ export async function updateVehicleById(id, vehicleData) {
         mileage = ${mileage},
         mot_expiry_date = ${mot_expiry_date}::DATE,
         road_tax_expiry_date = ${road_tax_expiry_date}::DATE,
+        renewal_expiry_date = ${renewal_expiry_date}::DATE,
         company = ${company},
         weekly_rent = ${weekly_rent},
         type = ${vehicle_type}
@@ -144,6 +148,7 @@ export async function addVehicleDetails(vehicleData) {
     mileage,
     mot_expiry_date,
     road_tax_expiry_date,
+    renewal_expiry_date,
     council_plates,
     company,
     weekly_rent,
@@ -162,6 +167,7 @@ export async function addVehicleDetails(vehicleData) {
         mileage,
         mot_expiry_date,
         road_tax_expiry_date,
+        renewal_expiry_date,
         company,
         weekly_rent,
         type
@@ -172,6 +178,7 @@ export async function addVehicleDetails(vehicleData) {
         ${mileage},
         ${mot_expiry_date}::DATE,
         ${road_tax_expiry_date}::DATE,
+        ${renewal_expiry_date}::DATE,
         ${company},
         ${weekly_rent},
         ${vehicle_type}
@@ -210,11 +217,22 @@ export async function updateMaintenanceById(id, status) {
   }
 }
 
+export async function deleteVehicleById(id) {
+  try {
+    const deletedVehicle = await sql`DELETE FROM vehicles WHERE id = ${id}`;
+    return deletedVehicle;
+  } catch (err) {
+    console.error("Error deleting vehicle:", err);
+    throw new Error("Error deleting vehicle: " + err.message);
+  }
+}
+
 export async function getVehicleNotifications() {
   const notifications = {};
   try {
     notifications.mot = await checkVehicleMOT();
     notifications.tax = await checkVehicleTax();
+    notifications.renewal = await checkVehicleRenewal();
     notifications.plate = await checkVehiclePlates();
     console.log(notifications);
     return notifications;
@@ -243,6 +261,17 @@ export async function checkVehicleTax() {
   } catch (err) {
     console.error("Error checking vehicle tax:", err);
     throw new Error("Error checking vehicle tax: " + err.message);
+  }
+}
+
+export async function checkVehicleRenewal() {
+  try {
+    const results =
+      await sql`SELECT id, vrm, renewal_expiry_date from vehicles WHERE renewal_expiry_date <= CURRENT_DATE + 31`;
+    return results;
+  } catch (err) {
+    console.error("Error checking vehicle renewal:", err);
+    throw new Error("Error checking vehicle renewal: " + err.message);
   }
 }
 

@@ -27,30 +27,29 @@ export default function EditRental() {
   const [fetchData, setFetchData] = useState<rentalDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
-  async function fetchRentalData() {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/rentals/${rental_id}`,
-      );
-      const data = await response.json();
-      console.log("Data being fetched", data);
-      if (data) {
-        setFetchData({
-          ...data,
-          rental_id: rental_id,
-          vehicle_id: data.vehicle_id.toString(),
-          client_id: data.client_id.toString(),
-          start_date: data.start_date,
-          end_date: data.end_date,
-        });
-        console.log(fetchData);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
+    async function fetchRentalData() {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/rentals/${rental_id}`,
+        );
+        const data = await response.json();
+        console.log("Data being fetched", data);
+        if (data) {
+          setFetchData({
+            ...data,
+            rental_id: rental_id,
+            vehicle_id: data.vehicle_id.toString(),
+            client_id: data.client_id.toString(),
+            start_date: data.start_date,
+            end_date: data.end_date,
+          });
+          console.log(fetchData);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
     fetchRentalData();
   }, [rental_id]);
 

@@ -12,6 +12,7 @@ export type vehicleDetails = {
   mileage: number;
   mot_expiry_date: string;
   road_tax_expiry_date: string;
+  renewal_expiry_date: string;
   council_plates: councilPlate[];
   company: string;
   weekly_rent: number;

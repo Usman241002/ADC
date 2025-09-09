@@ -125,6 +125,14 @@ export default function AddVehicle() {
                 type="Date"
                 handleChange={handleChange}
               />
+              <Input
+                size={4}
+                label="ADC Renewal Expiry"
+                name="renewal_expiry_date"
+                value={vehicleDetails.renewal_expiry_date}
+                type="Date"
+                handleChange={handleChange}
+              />
             </Grid>
           </AccordionDetails>
         </Accordion>
