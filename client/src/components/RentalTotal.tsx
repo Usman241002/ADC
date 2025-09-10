@@ -16,11 +16,16 @@ export default function RentalTotal({
   rentalDetails,
   selectedVehicle,
 }: RentalTotal) {
+  // Use the weekly_rent from rentalDetails if available, otherwise fall back to selectedVehicle
+  const weeklyRent =
+    rentalDetails.weekly_rent || selectedVehicle?.weekly_rent || 0;
+
   const rentalCost = selectedVehicle
-    ? (selectedVehicle.weekly_rent * rentalDetails.duration_days) / 7
+    ? (weeklyRent * rentalDetails.duration_days) / 7
     : 0;
 
   const totalCost = rentalCost + (selectedVehicle?.deposit_amount || 0);
+
   return (
     <Paper
       sx={{
@@ -66,7 +71,7 @@ export default function RentalTotal({
                   fontWeight: "bold",
                 }}
               >
-                £{selectedVehicle.weekly_rent}
+                £{weeklyRent}
               </TableCell>
             </TableRow>
             <TableRow>

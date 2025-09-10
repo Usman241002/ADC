@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import { combineReducers } from "@reduxjs/toolkit";
-
 import vehiclesReducer from "../features/vehiclesSlice";
 import rentalsReducer from "../features/rentalsSlice";
 import paymentsReducer from "../features/paymentsSlice";

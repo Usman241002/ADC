@@ -17,14 +17,21 @@ import type { rentalDetails } from "../app/types/rentals";
 import { useParams } from "react-router-dom";
 
 export default function EditRental() {
+  //Grab id from url
   const { rental_id } = useParams();
+
+  //Accordion Setup
   const [expanded, setExpanded] = useState<string | false>("panel1");
   const [completed, setCompleted] = useState({
     panel1: false,
     panel2: false,
     panel3: false,
   });
+
+  //Fetch Rental Data states
   const [fetchData, setFetchData] = useState<rentalDetails | null>(null);
+
+  //Set Loading
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,6 +41,8 @@ export default function EditRental() {
           `${import.meta.env.VITE_API_URL}/api/rentals/${rental_id}`,
         );
         const data = await response.json();
+
+        //Remove this
         console.log("Data being fetched", data);
         if (data) {
           setFetchData({
@@ -43,6 +52,7 @@ export default function EditRental() {
             client_id: data.client_id.toString(),
             start_date: data.start_date,
             end_date: data.end_date,
+            weekly_rent: data.applied_weekly_rent || data.weekly_rent || 0, // Use applied_weekly_rent if available
           });
           console.log(fetchData);
         }
@@ -56,6 +66,7 @@ export default function EditRental() {
   const {
     handleVehicleSelection,
     handleRentalChange,
+    handleWeeklyRentChange,
     rentalDetails,
     availableVehicles,
     handleSubmit,
@@ -100,6 +111,7 @@ export default function EditRental() {
                     rentalDetails={rentalDetails}
                     availableVehicles={availableVehicles}
                     editRental={true}
+                    onWeeklyRentChange={handleWeeklyRentChange}
                   />
                   <Box
                     sx={{

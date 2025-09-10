@@ -9,6 +9,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  TextField,
 } from "@mui/material";
 import Input from "../components/Input";
 import type { rentalDetails, availableVehicles } from "../app/types/rentals";
@@ -19,6 +20,7 @@ type props = {
   rentalDetails: Omit<rentalDetails, "rental_id">;
   availableVehicles: availableVehicles[];
   editRental?: boolean;
+  onWeeklyRentChange?: (vehicleId: string, newWeeklyRent: number) => void;
 };
 
 export default function AddDateVehicleForm({
@@ -27,8 +29,29 @@ export default function AddDateVehicleForm({
   rentalDetails,
   availableVehicles,
   editRental = false,
+  onWeeklyRentChange,
 }: props) {
   console.log(rentalDetails);
+
+  const handleWeeklyRentChange = (vehicleId: string, value: string) => {
+    const numericValue = parseFloat(value) || 0;
+    if (onWeeklyRentChange) {
+      onWeeklyRentChange(vehicleId, numericValue);
+    }
+  };
+
+  const getVehicleWeeklyRent = (vehicle: availableVehicles) => {
+    // If this vehicle is selected, use the rental details weekly_rent if available
+    if (
+      vehicle.id.toString() === rentalDetails.vehicle_id &&
+      rentalDetails.weekly_rent
+    ) {
+      return rentalDetails.weekly_rent;
+    }
+    // Otherwise use the vehicle's default weekly_rent
+    return vehicle.weekly_rent;
+  };
+
   return (
     <>
       <Grid container spacing={4}>
@@ -90,36 +113,61 @@ export default function AddDateVehicleForm({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {availableVehicles.map((vehicle) => (
-                  <TableRow key={vehicle.id}>
-                    <TableCell>
-                      <Checkbox
-                        checked={
-                          vehicle.id.toString() === rentalDetails.vehicle_id
-                        }
-                        onChange={() =>
-                          handleVehicleSelection(vehicle.id.toString())
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {vehicle.make} {vehicle.model}
-                    </TableCell>
-                    <TableCell>{vehicle.vrm}</TableCell>
-                    <TableCell>{vehicle.mileage} mi</TableCell>
-                    <TableCell>£ {vehicle.weekly_rent}</TableCell>
-                    <TableCell>
-                      £{" "}
-                      {rentalDetails.start_date && rentalDetails.end_date
-                        ? (
-                            (vehicle.weekly_rent *
-                              rentalDetails.duration_days) /
-                            7
-                          ).toFixed(2)
-                        : "0.00"}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {availableVehicles.map((vehicle) => {
+                  const isSelected =
+                    vehicle.id.toString() === rentalDetails.vehicle_id;
+                  const currentWeeklyRent = getVehicleWeeklyRent(vehicle);
+
+                  return (
+                    <TableRow key={vehicle.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() =>
+                            handleVehicleSelection(vehicle.id.toString())
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {vehicle.make} {vehicle.model}
+                      </TableCell>
+                      <TableCell>{vehicle.vrm}</TableCell>
+                      <TableCell>{vehicle.mileage} mi</TableCell>
+                      <TableCell>
+                        {isSelected ? (
+                          <TextField
+                            value={currentWeeklyRent}
+                            onChange={(e) =>
+                              handleWeeklyRentChange(
+                                vehicle.id.toString(),
+                                e.target.value,
+                              )
+                            }
+                            type="number"
+                            size="small"
+                            variant="outlined"
+                            InputProps={{
+                              startAdornment: <Typography>£</Typography>,
+                            }}
+                            sx={{ width: 100 }}
+                          />
+                        ) : (
+                          `£ ${vehicle.weekly_rent}`
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        £{" "}
+                        {rentalDetails.start_date && rentalDetails.end_date
+                          ? (
+                              (currentWeeklyRent *
+                                rentalDetails.duration_days) /
+                              7
+                            ).toFixed(2)
+                          : "0.00"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

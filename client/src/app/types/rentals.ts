@@ -5,6 +5,7 @@ export type rentalDetails = {
   start_date: string;
   end_date: string;
   duration_days: number;
+  weekly_rent: number;
 };
 
 export type availableVehicles = {
@@ -30,5 +31,5 @@ export type rentalsInfo = {
   company: string;
   customer_first_name: string;
   customer_last_name: string;
-  weekly_rent: number;
+  applied_weekly_rent: number;
 };

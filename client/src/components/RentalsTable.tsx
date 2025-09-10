@@ -123,7 +123,7 @@ export default function RentalsTable({ searchTerm }: RentalsTableProps) {
                   </Typography>
                 </Box>
               </TableCell>
-              <TableCell>{rental.weekly_rent}</TableCell>
+              <TableCell>£{rental.applied_weekly_rent}</TableCell>
               <TableCell>
                 <Stack direction="row" justifyContent="start">
                   <IconButton>

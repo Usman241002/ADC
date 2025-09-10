@@ -131,7 +131,15 @@ export default function AddClientForm({
               type="text"
               handleChange={handleClientChange}
             />
-            <Grid size={6}></Grid>
+            <Input
+              size={3}
+              name="national_insurance"
+              label="NI Number"
+              value={client.national_insurance}
+              type="text"
+              handleChange={handleClientChange}
+            />
+            <Grid size={3}></Grid>
             <Input
               size={3}
               name="license_number"

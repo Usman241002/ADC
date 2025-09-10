@@ -21,6 +21,7 @@ export default function useRentalForm(
       start_date: today.toISOString().split("T")[0],
       end_date: endDate.toISOString().split("T")[0],
       duration_days: 89,
+      weekly_rent: 0,
     };
   });
 
@@ -29,7 +30,6 @@ export default function useRentalForm(
       const start = new Date(fetchData.start_date);
       const end = new Date(fetchData.end_date);
 
-      // Calculate difference in days
       const diffTime = end.getTime() - start.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
@@ -39,6 +39,8 @@ export default function useRentalForm(
         start_date: formatDateToYYYYMMDD(fetchData.start_date),
         end_date: formatDateToYYYYMMDD(fetchData.end_date),
         duration_days: diffDays > 0 ? diffDays : 1,
+        weekly_rent:
+          fetchData.weekly_rent || fetchData.applied_weekly_rent || 0,
       });
     }
   }, [fetchData, preSelectedVehicleId, selectedClientId]);
@@ -87,6 +89,7 @@ export default function useRentalForm(
         setRentalDetails((prev) => ({
           ...prev,
           vehicle_id: preSelectedVehicleId,
+          weekly_rent: vehicleExists.weekly_rent, // Set default weekly rent
         }));
       }
     }
@@ -99,10 +102,26 @@ export default function useRentalForm(
 
   // Handle vehicle selection
   const handleVehicleSelection = (vehicle_id: string) => {
+    const selectedVehicle = availableVehicles.find(
+      (vehicle) => vehicle.id.toString() === vehicle_id,
+    );
+
     setRentalDetails((prev) => ({
       ...prev,
       vehicle_id: vehicle_id,
+      weekly_rent: selectedVehicle ? selectedVehicle.weekly_rent : 0,
     }));
+  };
+
+  // Handle weekly rent change for selected vehicle
+  const handleWeeklyRentChange = (vehicleId: string, newWeeklyRent: number) => {
+    // Only update if this is the selected vehicle
+    if (vehicleId === rentalDetails.vehicle_id) {
+      setRentalDetails((prev) => ({
+        ...prev,
+        weekly_rent: newWeeklyRent,
+      }));
+    }
   };
 
   function handleRentalChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -219,6 +238,7 @@ export default function useRentalForm(
     availableVehicles,
     handleVehicleSelection,
     handleRentalChange,
+    handleWeeklyRentChange,
     vehiclesLoaded,
     handleSubmit,
   };

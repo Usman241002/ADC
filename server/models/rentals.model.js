@@ -14,14 +14,14 @@ export async function getAllRentals() {
         v.company,
         c.first_name AS customer_first_name,
         c.last_name AS customer_last_name,
-        v.weekly_rent
+        r.applied_weekly_rent
       FROM rentals r
       JOIN vehicles v ON r.vehicle_id = v.id
       JOIN clients c ON r.client_id = c.id
       WHERE r.status = 'Active' OR r.status = 'Inactive'
       ORDER BY r.end_date
     `;
-    return results; // Remove .rows - postgres library returns array directly
+    return results;
   } catch (error) {
     console.error("Error fetching rentals:", error);
     throw error;
@@ -30,22 +30,24 @@ export async function getAllRentals() {
 
 export async function createRental(rentalData) {
   try {
-    const { vehicle_id, client_id, start_date, end_date } = rentalData;
+    const { vehicle_id, client_id, start_date, end_date, weekly_rent } =
+      rentalData;
 
     // Insert rental and get the ID
     const rentalResult = await sql`
-      INSERT INTO rentals(vehicle_id, client_id, start_date, end_date)
-      VALUES (${vehicle_id}, ${client_id}, ${start_date}, ${end_date})
+      INSERT INTO rentals(vehicle_id, client_id, start_date, end_date, applied_weekly_rent)
+      VALUES (${vehicle_id}, ${client_id}, ${start_date}, ${end_date}, ${weekly_rent})
       RETURNING rental_id
     `;
     const rental_id = rentalResult[0].rental_id;
 
     // Get vehicle info for deposit and weekly rent
     const vehicleResult = await sql`
-      SELECT v.weekly_rent, t.deposit_amount
-      FROM vehicles v
+      SELECT t.deposit_amount, r.applied_weekly_rent
+      FROM rentals r
+      JOIN vehicles v ON r.vehicle_id = v.id
       JOIN type_lookup t ON v.type = t.type_name
-      WHERE v.id = ${vehicle_id}
+      WHERE r.rental_id = ${rental_id}
     `;
 
     if (vehicleResult.length === 0) {
@@ -53,7 +55,7 @@ export async function createRental(rentalData) {
     }
 
     const vehicleDeposit = parseFloat(vehicleResult[0].deposit_amount);
-    const weeklyRent = parseFloat(vehicleResult[0].weekly_rent);
+    const weeklyRent = parseFloat(vehicleResult[0].applied_weekly_rent);
     const dailyRate = weeklyRent / 7;
 
     // Insert deposit payment
@@ -151,7 +153,7 @@ export async function updateRentalStatus(rental_id) {
 export async function getRentalById(rental_id) {
   try {
     const result = await sql`
-      SELECT vehicle_id, client_id, start_date, end_date
+      SELECT vehicle_id, client_id, start_date, end_date, applied_weekly_rent
       FROM rentals
       WHERE rental_id = ${rental_id}
     `;
@@ -189,7 +191,8 @@ export async function updateRentalById(rental_id, data) {
       SET vehicle_id = ${vehicle_id},
           client_id = ${client_id},
           start_date = ${start_date},
-          end_date = ${end_date}
+          end_date = ${end_date},
+          applied_weekly_rent = ${applied_weekly_rent}
       WHERE rental_id = ${rental_id}
       RETURNING *
     `;

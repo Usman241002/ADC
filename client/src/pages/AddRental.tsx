@@ -38,6 +38,7 @@ export default function AddRental() {
     availableVehicles,
     handleVehicleSelection,
     handleRentalChange,
+    handleWeeklyRentChange,
     vehiclesLoaded,
     handleSubmit,
   } = useRentalForm(selectedClientId, vehicle_id);
@@ -137,6 +138,7 @@ export default function AddRental() {
                     handleRentalChange={handleRentalChange}
                     rentalDetails={rentalDetails}
                     availableVehicles={availableVehicles}
+                    onWeeklyRentChange={handleWeeklyRentChange}
                   />
                   <Box
                     sx={{
