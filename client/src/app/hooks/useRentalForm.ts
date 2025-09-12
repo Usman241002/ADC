@@ -79,17 +79,21 @@ export default function useRentalForm(
     fetchVehiclesForRent();
   }, []);
 
+  // Fixed useEffect: Set weekly_rent when vehicles are loaded and we have a preselected vehicle
   useEffect(() => {
-    if (vehiclesLoaded && preSelectedVehicleId && !rentalDetails.vehicle_id) {
+    if (
+      vehiclesLoaded &&
+      preSelectedVehicleId &&
+      rentalDetails.vehicle_id === preSelectedVehicleId
+    ) {
       const vehicleExists = availableVehicles.find(
         (vehicle) => vehicle.id.toString() === preSelectedVehicleId,
       );
 
-      if (vehicleExists) {
+      if (vehicleExists && rentalDetails.weekly_rent === 0) {
         setRentalDetails((prev) => ({
           ...prev,
-          vehicle_id: preSelectedVehicleId,
-          weekly_rent: vehicleExists.weekly_rent, // Set default weekly rent
+          weekly_rent: vehicleExists.weekly_rent,
         }));
       }
     }
@@ -98,6 +102,7 @@ export default function useRentalForm(
     preSelectedVehicleId,
     availableVehicles,
     rentalDetails.vehicle_id,
+    rentalDetails.weekly_rent,
   ]);
 
   // Handle vehicle selection

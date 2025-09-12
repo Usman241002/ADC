@@ -22,9 +22,8 @@ app.use("/api/vehicles", vehiclesRouter);
 app.use("/api/clients", clientsRouter);
 app.use("/api/rentals", rentalsRouter);
 app.use("/api/payments", paymentsRouter);
+app.use("/images", express.static("public/images"));
 
 const PORT = 8000;
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-await sendTestEmail("ukhalid428@gmail.com");

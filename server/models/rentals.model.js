@@ -61,7 +61,7 @@ export async function createRental(rentalData) {
     // Insert deposit payment
     const startDate = new Date(start_date);
     const dueDate = new Date(startDate);
-    dueDate.setDate(startDate.getDate() + 3);
+    dueDate.setDate(startDate.getDate());
 
     await sql`
       INSERT INTO payments (rental_id, week_no, start_date, end_date, due_date, amount_due, status)
